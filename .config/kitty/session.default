@@ -1,0 +1,4 @@
+# Set the working directory for windows in the current tab
+cd ~/wonderland
+# launch tmux
+launch tmux

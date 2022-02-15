@@ -1,0 +1,113 @@
+# Unix
+alias ln="ln -v"
+alias mkdir="mkdir -p"
+alias e="$EDITOR"
+alias v="$VISUAL"
+
+# Easier navigation: .., ..., ...., and -
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias -- -="cd -"
+
+# Shortcuts
+alias d="cd ~/Documents"
+alias dl="cd ~/Downloads"
+alias wl="cd ~/wonderland"
+alias dof="cd ~/wonderland/dotfiles"
+alias rep="cd ~/wonderland/repositories"
+alias ak="cd ~/wonderland/arrakis"
+alias clr="clear"
+alias awsl="aws sso login --profile aws-dev-admin"
+alias k="kubectl "
+
+# replace ls with exa
+if [ -x "$(command -v exa)" ]; then
+    alias ls="exa"
+fi
+# list shortcuts
+alias ll="ls -alF"
+alias lsl="ls -alF1"
+alias lsd="ls -alF | rg '^d'"
+alias lsf="ls -alF | rg '^-'"
+
+# git
+alias gpl='git pull'
+alias gps='git push'
+alias gp='git pull && git push'
+alias commit="bash ~/bin/commit.sh"
+alias gcl="gh repo clone"
+alias gc="git commit "
+alias gcm="git commit -m "
+
+# kube
+alias krew='kubectl krew '
+alias ctx='kubectl ctx '
+alias ns='kubectl ns '
+alias stern='kubectl stern '
+
+# Trim new lines and copy to clipboard
+alias c="tr -d '\n' | pbcopy"
+
+# Enable aliases to be sudo’ed
+alias sudo='sudo '
+
+# Get week number
+alias week='date +%V'
+
+# IP addresses
+alias localip="ipconfig getifaddr en0"
+
+# Flush Directory Service cache
+alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
+
+# Clean up LaunchServices to remove duplicates in the “Open With” menu
+alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
+
+# Canonical hex dump; some systems have this symlinked
+command -v hd > /dev/null || alias hd="hexdump -C"
+
+# macOS has no `md5sum`, so use `md5` as a fallback
+command -v md5sum > /dev/null || alias md5sum="md5"
+
+# macOS has no `sha1sum`, so use `shasum` as a fallback
+command -v sha1sum > /dev/null || alias sha1sum="shasum"
+
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+
+# Empty the Trash on all mounted volumes and the main HDD.
+# Also, clear Apple’s System Logs to improve shell startup speed.
+# Finally, clear download history from quarantine. https://mths.be/bum
+alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+
+# Hide/show all desktop icons (useful when presenting)
+alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
+alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
+
+# URL-encode strings
+alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+# base64 en/decode strings
+alias bs='f() { echo $1 | base64 -d };f'
+alias be='f() { echo $1 | base64 };f'
+
+# Airport CLI alias
+alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
+
+# Intuitive map function
+# For example, to list all directories that contain a certain file:
+# find . -name .gitattributes | map dirname
+alias map="xargs -n1"
+
+# One of @janmoesen’s ProTip™s
+for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
+	alias "${method}"="lwp-request -m '${method}'"
+done
+
+# Reload the shell (i.e. invoke as a login shell)
+alias reload="exec ${SHELL} -l"
+
+alias afk="osascript ~/.bin/afk"
+
+# Print each PATH entry on a separate line
+alias path='echo -e ${PATH//:/\\n}'

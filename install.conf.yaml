@@ -1,0 +1,51 @@
+- defaults:
+    link:
+        relink: true
+- clean: ['~']
+- create:
+    - ~/.aws
+    - ~/.config
+    - ~/.config/gh
+    - ~/.krew
+    - ~/.zsh
+    - ~/.zsh/aliases
+    - ~/.zsh/exports
+    - ~/.zsh/functions
+    - ~/.kube
+- link:
+    ~/.aws/config: ../vault/.aws/config
+    ~/.aws/credentials: ../vault/.aws/credentials
+    ~/.config/gh/config.yml: .config/gh/config.yml
+    ~/.config/gh/hosts.yml: ../vault/.config/gh/hosts.yml
+    ~/.config/kitty/kitty.conf: .config/kitty/kitty.conf
+    ~/.config/kitty/session.default: .config/kitty/session.default
+    ~/.krew/krewfile: .krew/krewfile
+    ~/.kube/config: ../vault/.kube/config
+    ~/Library/Application Support/k9s/skin.yml: .k9s/skin.yml
+    ~/.zsh/aliases/.aliases: .zsh/aliases/.aliases
+    ~/.zsh/exports/.exports: .zsh/exports/.exports
+    ~/.zsh/functions/.functions: .zsh/functions/.functions
+    ~/.gitconfig: .gitconfig
+    ~/.gitconfig.local: ../vault/.gitconfig.local
+    ~/.gitignore: .gitignore
+    ~/.gitmessage: .gitmessage
+    ~/.vimrc: .vimrc
+    ~/.macos: .macos
+    ~/.tmux.conf: .tmux.conf
+    ~/.config/starship.toml: .config/starship.toml
+    ~/.zprofile: .zprofile
+    ~/.private.zshenv: ../vault/.zshenv
+    ~/.zshrc: .zshrc
+    ~/Brewfile: Brewfile
+    ~/Brewfile.lock.json: Brewfile.lock.json
+    ~/.config/nvim: .config/nvim/NvChad
+    ~/.bin: .bin
+- create:
+    - ~/Documents/screenshots
+    - ~/.config/nvim/lua/custom
+- link:
+    ~/.config/nvim/lua/custom/chadrc.lua: chadrc.lua
+- shell:
+    - [source ~/.zshrc]
+    - [brew bundle install]
+    - [kubectl krew install < ~/.krew/krewfile]
