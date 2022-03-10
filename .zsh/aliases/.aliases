@@ -36,6 +36,7 @@ alias gpl='git pull'
 alias gps='git push'
 alias gp='git pull && git push'
 alias commit="bash ~/bin/commit.sh"
+alias gaa="git add ."
 alias gcl="gh repo clone"
 alias gc="git commit "
 alias gcm="git commit -m "
