@@ -100,7 +100,7 @@ k9s:
       keyColor: *blue
       colonColor: *magenta
       valueColor: *foreground
-    # Logs styles.
+    # Logs styles
     logs:
       fgColor: *foreground
       bgColor: default

@@ -20,6 +20,7 @@ alias ak="cd ~/wonderland/arrakis"
 alias clr="clear"
 alias awsl="aws sso login --profile aws-dev-admin"
 alias k="kubectl "
+alias yqs="yq -i -P 'sort_keys(..)' "
 
 # replace ls with exa
 if [ -x "$(command -v exa)" ]; then
@@ -89,7 +90,7 @@ alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && k
 # URL-encode strings
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
 # base64 en/decode strings
-alias bs='f() { echo $1 | base64 -d };f'
+alias bd='f() { echo $1 | base64 -d };f'
 alias be='f() { echo $1 | base64 };f'
 
 # Airport CLI alias

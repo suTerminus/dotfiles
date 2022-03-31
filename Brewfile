@@ -22,6 +22,7 @@ brew "tree"
 brew "gotop"
 brew "fzf"
 brew "timewarrior"
+brew "yq"
 brew "reattach-to-user-namespace"
 
 # fonts and themes
@@ -36,6 +37,8 @@ brew "minikube"
 brew "kind"
 tap "fluxcd/tap"
 brew "fluxcd/tap/flux"
+tap "omrikiei/ktunnel" 
+brew "omrikiei/ktunnel/ktunnel"
 
 # aws
 brew "awscli"
