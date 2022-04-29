@@ -8,6 +8,7 @@ brew "mas"
 
 brew "zsh"
 
+
 # utils
 brew "ripgrep"
 brew "coreutils"
