@@ -64,6 +64,7 @@ brew "tmux"
 cask "kitty"
 cask "visual-studio-code"
 cask "datagrip"
+cask "goland"
 brew "starship"
 
 

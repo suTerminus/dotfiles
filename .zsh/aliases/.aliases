@@ -41,6 +41,13 @@ alias gaa="git add ."
 alias gcl="gh repo clone"
 alias gc="git commit "
 alias gcm="git commit -m "
+alias gsa="git stash --include-untracked"
+alias gsl="git stash list"
+alias gss="git stash show"
+alias gsp="git stash pop"
+alias gs="git status"
+alias gd="git diff"
+
 
 # kube
 alias krew='kubectl krew '
