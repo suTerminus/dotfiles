@@ -22,4 +22,4 @@
 [gpg]
 	program = gpg
 [pull]
-	rebase = true
+	rebase = false

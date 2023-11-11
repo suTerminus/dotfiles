@@ -58,3 +58,25 @@ function tre() {
 function afk() {
 	osascript -e 'tell app "System Events" to key code 12 using {control down, command down}';
 }
+
+funtion killport() {
+  if [ -z "$1" ]; then
+    echo "Usage: killport <port>"
+    return 1
+  fi
+
+  local port=$1
+  local pid
+
+  # Find the PID of the process listening on the given port
+  pid=$(lsof -ti tcp:"$port")
+
+  if [ -z "$pid" ]; then
+    echo "No process found listening on port $port."
+    return 1
+  fi
+
+  # Kill the process with the found PID
+  echo "Killing process with PID $pid on port $port."
+  kill -9 $pid
+}

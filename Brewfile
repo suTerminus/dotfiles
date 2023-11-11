@@ -5,7 +5,6 @@ tap "homebrew/cask"
 tap "homebrew/cask-fonts"
 tap "buo/cask-upgrade"
 brew "mas"
-
 brew "zsh"
 
 
@@ -25,6 +24,12 @@ brew "fzf"
 brew "timewarrior"
 brew "yq"
 brew "reattach-to-user-namespace"
+brew "devutils"
+brew "act"
+brew "tfenv"
+brew "gnu-sed"
+brew "ossp-uuid"
+brew "git-filter-repo"
 
 # fonts and themes
 cask "font-fira-code-nerd-font"
@@ -40,6 +45,7 @@ tap "fluxcd/tap"
 brew "fluxcd/tap/flux"
 tap "omrikiei/ktunnel" 
 brew "omrikiei/ktunnel/ktunnel"
+brew "kubeconform"
 
 # aws
 brew "awscli"
@@ -66,6 +72,7 @@ cask "visual-studio-code"
 cask "datagrip"
 cask "goland"
 brew "starship"
+cask "anaconda"
 
 
 # os applications
@@ -79,6 +86,7 @@ cask "slack"
 cask "whatsapp"
 cask "postman"
 cask "vlc"
+mas "1Password 7 - Password manager", id: 1333542190
 
 # for mood
 cask "spotify"

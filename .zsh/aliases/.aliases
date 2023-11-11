@@ -8,6 +8,7 @@ alias v="$VISUAL"
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
+alias .....="cd ../../../.."
 alias -- -="cd -"
 
 # Shortcuts
@@ -16,9 +17,14 @@ alias dl="cd ~/Downloads"
 alias wl="cd ~/wonderland"
 alias dof="cd ~/wonderland/dotfiles"
 alias rep="cd ~/wonderland/repositories"
+alias ops="cd ~/wonderland/repositories/enersis/ops"
+alias dt="cd ~/wonderland/repositories/enersis/ops/duct-tape"
+alias dta="cd ~/wonderland/repositories/enersis/ops/duct-tape/apps"
+alias dtc="cd ~/wonderland/repositories/enersis/ops/duct-tape/clusters"
+alias dti="cd ~/wonderland/repositories/enersis/ops/duct-tape/infrastructure"
 alias ak="cd ~/wonderland/arrakis"
 alias clr="clear"
-alias awsl="aws sso login --profile aws-dev-admin"
+alias awsl="aws sso login --profile "
 alias k="kubectl "
 alias yqs="yq -i -P 'sort_keys(..)' "
 
@@ -37,16 +43,16 @@ alias gpl='git pull'
 alias gps='git push'
 alias gp='git pull && git push'
 alias commit="bash ~/bin/commit.sh"
-alias gaa="git add ."
-alias gcl="gh repo clone"
-alias gc="git commit "
-alias gcm="git commit -m "
+alias gc="git commit -m "
+alias gca="git add . && git commit -m "
 alias gsa="git stash --include-untracked"
 alias gsl="git stash list"
 alias gss="git stash show"
 alias gsp="git stash pop"
 alias gs="git status"
 alias gd="git diff"
+alias gco="git checkout "
+alias gb="git checkout -b "
 
 
 # kube
