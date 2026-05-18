@@ -24,6 +24,13 @@ bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
 
+# Splits: prefix + - (horizontal, top/bottom), prefix + _ (vertical, left/right).
+# New panes inherit the current pane's working directory.
+unbind '"'
+unbind %
+bind - split-window -v -c "#{pane_current_path}"
+bind _ split-window -h -c "#{pane_current_path}"
+
 # Reload config: prefix + r.
 bind r source-file ~/.tmux.conf \; display "tmux config reloaded"
 
