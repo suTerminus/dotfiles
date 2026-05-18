@@ -1,0 +1,502 @@
+-- ~/.hammerspoon/init.lua (managed by chezmoi: home/dot_hammerspoon/init.lua.tmpl)
+--
+-- Reactive window-to-display and space placement with per-docking-state presets.
+--
+-- A `preset` maps bundle-id -> list of screen indices (1-indexed, left-to-right).
+-- A `spaceLayout` maps bundle-id -> list of space indices within that screen.
+-- The Nth window for an app uses preset[bid][N] and spaceLayout[bid][N], wrapping.
+--
+-- Active preset is chosen automatically from connected display count:
+--   1 screen  -> "laptop"    (3 spaces: comms | dev | support)
+--   2 screens -> "minimal"
+--   3+ screens -> "office"   (pin to "homeoffice" manually when at home)
+--
+-- IPC (call via `hs -c '<fn>()'`):
+--   preset("office"|"homeoffice"|"minimal"|"laptop")  -- pin a preset
+--   preset("auto")                                    -- release pin
+--   currentPreset()                                   -- name + screen count
+--   commApps()                                        -- launch comm-app set
+--   snapAll()                                         -- re-snap every window
+--   hs.reload()                                       -- reload init.lua
+--
+-- Amethyst handles sizing within each display; this script decides
+-- WHICH display and WHICH space a window lives on.
+
+require("hs.ipc")  -- enables `hs -c` CLI access
+hs.logger.defaultLogLevel = "info"
+local log = hs.logger.new("layout", "info")
+
+-- ---------------------------------------------------------------------------
+-- Presets (screen placement)
+-- ---------------------------------------------------------------------------
+
+local presets = {}
+
+{{ if eq .machine "work" -}}
+-- 3 external displays: comm | dev/zen | support
+-- Space layout per display (see spaceLayouts.office below):
+--   Display 1: s1=async(Teams/Outlook) s2=realtime(Slack) s3=personal(WA/Spotify) s4=Arc
+--   Display 2: s1=notes(Obsidian)      s2=code(VSCode/Ghostty) s3=tools(GoLand/DG) s4=Arc
+--   Display 3: s1=ai(Claude/Kreya/Arc) s2=_                    s3=terminal(Ghostty)
+presets.office = {
+  ["com.microsoft.teams2"]           = { 1 },
+  ["com.microsoft.Outlook"]          = { 1 },
+  ["com.tinyspeck.slackmacgap"]      = { 1 },
+  ["net.whatsapp.WhatsApp"]          = { 1 },
+  ["com.spotify.client"]             = { 1 },
+  ["md.obsidian"]                    = { 2 },
+  ["com.microsoft.VSCode"]           = { 2 },
+  ["com.jetbrains.goland"]           = { 2 },
+  ["com.jetbrains.datagrip"]         = { 2 },
+  ["com.anthropic.claudefordesktop"] = { 3 },
+  ["app.kreya"]                      = { 3 },
+  ["company.thebrowser.Browser"]     = { 2, 1, 3 }, -- Arc: dev, comm, support
+  ["com.mitchellh.ghostty"]          = { 3, 2 },    -- Ghostty: support, dev
+}
+
+-- NOTE: identical to office until home-vs-office habits diverge.
+presets.homeoffice = presets.office
+
+-- 1 external + laptop. Comm on screen 1, dev+support on screen 2.
+presets.minimal = {
+  ["com.microsoft.teams2"]           = { 1 },
+  ["com.microsoft.Outlook"]          = { 1 },
+  ["com.tinyspeck.slackmacgap"]      = { 1 },
+  ["net.whatsapp.WhatsApp"]          = { 1 },
+  ["com.spotify.client"]             = { 1 },
+  ["md.obsidian"]                    = { 2 },
+  ["com.microsoft.VSCode"]           = { 2 },
+  ["com.jetbrains.goland"]           = { 2 },
+  ["com.jetbrains.datagrip"]         = { 2 },
+  ["com.anthropic.claudefordesktop"] = { 2 },
+  ["app.kreya"]                      = { 2 },
+  ["company.thebrowser.Browser"]     = { 2, 1 },
+  ["com.mitchellh.ghostty"]          = { 2 },
+}
+
+-- Built-in display only. All on screen 1; spaces differentiate (see spaceLayouts).
+presets.laptop = {
+  ["com.microsoft.teams2"]           = { 1 },
+  ["com.microsoft.Outlook"]          = { 1 },
+  ["com.tinyspeck.slackmacgap"]      = { 1 },
+  ["net.whatsapp.WhatsApp"]          = { 1 },
+  ["com.spotify.client"]             = { 1 },
+  ["md.obsidian"]                    = { 1 },
+  ["com.microsoft.VSCode"]           = { 1 },
+  ["com.jetbrains.goland"]           = { 1 },
+  ["com.jetbrains.datagrip"]         = { 1 },
+  ["com.anthropic.claudefordesktop"] = { 1 },
+  ["app.kreya"]                      = { 1 },
+  ["company.thebrowser.Browser"]     = { 1 },
+  ["com.mitchellh.ghostty"]          = { 1 },
+}
+{{- else -}}
+-- Personal-scope: add presets and bundle-ids as needed.
+presets.laptop = {}
+{{- end }}
+
+-- ---------------------------------------------------------------------------
+-- Space layouts (space index within the target screen, parallel to presets)
+-- nil = no space management for that preset
+-- ---------------------------------------------------------------------------
+
+local spaceLayouts = {}
+
+{{ if eq .machine "work" -}}
+-- Laptop: 3 spaces mirror the office monitor split.
+--   Space 1 — comms   Space 2 — dev   Space 3 — support
+spaceLayouts.laptop = {
+  ["com.microsoft.teams2"]           = { 1 },
+  ["com.microsoft.Outlook"]          = { 1 },
+  ["com.tinyspeck.slackmacgap"]      = { 1 },
+  ["net.whatsapp.WhatsApp"]          = { 1 },
+  ["com.spotify.client"]             = { 1 },
+  ["md.obsidian"]                    = { 2 },
+  ["com.microsoft.VSCode"]           = { 2 },
+  ["com.jetbrains.goland"]           = { 2 },
+  ["com.jetbrains.datagrip"]         = { 2 },
+  ["com.anthropic.claudefordesktop"] = { 3 },
+  ["app.kreya"]                      = { 3 },
+  ["company.thebrowser.Browser"]     = { 2, 1, 3 }, -- mirrors office: dev→comm→support
+  ["com.mitchellh.ghostty"]          = { 3, 2 },    -- mirrors office: support first (single), then dev
+}
+
+-- Office: 4 spaces on comms + dev monitors, 3 on support.
+--   Display 1: s1=async(Teams/Outlook) s2=realtime(Slack) s3=personal(WA/Spotify) s4=Arc
+--   Display 2: s1=notes(Obsidian)      s2=code(VSCode/Ghostty) s3=tools(GoLand/DG) s4=Arc
+--   Display 3: s1=ai(Claude/Kreya/Arc) s2=_                    s3=terminal(Ghostty)
+spaceLayouts.office = {
+  ["com.microsoft.teams2"]           = { 1 },
+  ["com.microsoft.Outlook"]          = { 1 },
+  ["com.tinyspeck.slackmacgap"]      = { 2 },
+  ["net.whatsapp.WhatsApp"]          = { 3 },
+  ["com.spotify.client"]             = { 3 },
+  ["md.obsidian"]                    = { 1 },
+  ["com.microsoft.VSCode"]           = { 2 },
+  ["com.jetbrains.goland"]           = { 3 },
+  ["com.jetbrains.datagrip"]         = { 3 },
+  ["com.anthropic.claudefordesktop"] = { 1 },
+  ["app.kreya"]                      = { 1 },
+  ["company.thebrowser.Browser"]     = { 4, 4, 1 }, -- Arc: dev s4, comm s4, support s1
+  ["com.mitchellh.ghostty"]          = { 3, 2 },    -- Ghostty: support s3, dev s2
+}
+spaceLayouts.homeoffice = spaceLayouts.office
+
+-- Minimal (1 ext + laptop):
+--   Screen 1 (ext comms): s1=async(Teams/Outlook) s2=realtime(Slack) s3=personal(WA/Spotify)
+--   Screen 2 (laptop):    s1=notes(Obsidian)      s2=code(VSCode/Ghostty) s3=tools(GoLand/DG) s4=support(Claude/Kreya/Arc)
+spaceLayouts.minimal = {
+  ["com.microsoft.teams2"]           = { 1 },
+  ["com.microsoft.Outlook"]          = { 1 },
+  ["com.tinyspeck.slackmacgap"]      = { 2 },
+  ["net.whatsapp.WhatsApp"]          = { 3 },
+  ["com.spotify.client"]             = { 3 },
+  ["md.obsidian"]                    = { 1 },
+  ["com.microsoft.VSCode"]           = { 2 },
+  ["com.jetbrains.goland"]           = { 3 },
+  ["com.jetbrains.datagrip"]         = { 3 },
+  ["com.anthropic.claudefordesktop"] = { 4 },
+  ["app.kreya"]                      = { 4 },
+  ["company.thebrowser.Browser"]     = { 2, 1 }, -- Arc: laptop s2, ext s1 (no third window)
+  ["com.mitchellh.ghostty"]          = { 2 },    -- Ghostty: laptop code space
+}
+{{- end }}
+
+-- ---------------------------------------------------------------------------
+-- Preset selection
+-- ---------------------------------------------------------------------------
+
+local function signatureToPreset()
+  local n = #hs.screen.allScreens()
+  if n <= 1 then return "laptop"
+  elseif n == 2 then return "minimal"
+  else return "office"
+  end
+end
+
+-- ---------------------------------------------------------------------------
+-- State
+-- ---------------------------------------------------------------------------
+
+local activePreset  = nil
+local pinnedPreset  = nil
+local layout        = {}
+local spaceLayout   = nil  -- active space layout; nil = no space management
+local windowCounter = {}
+local windowSlots   = {}  -- win:id() -> slot index; lets retries reuse the same slot
+local yabaiMap      = {}  -- yabaiMap[screenIdx][spaceIdx] = yabai global space index
+
+-- ---------------------------------------------------------------------------
+-- Yabai integration (space assignment — hs.spaces.moveWindowToSpace is broken
+-- on macOS 26; yabai -m window --space <global_idx> works reliably)
+-- ---------------------------------------------------------------------------
+
+local YABAI = "/opt/homebrew/bin/yabai"
+
+-- Map yabai display-name -> bundle ID for all managed apps.
+-- On macOS 26, hs.window.allWindows() returns almost nothing — yabai is the
+-- only reliable source of window information. This table lets yabaiPlaceApps
+-- cover every app in the layout, not just the original special-cases.
+local YABAI_APP_NAME_TO_BID = {
+  ["Arc"]                 = "company.thebrowser.Browser",
+  ["Ghostty"]             = "com.mitchellh.ghostty",
+  ["Code"]                = "com.microsoft.VSCode",
+  ["Visual Studio Code"]  = "com.microsoft.VSCode",
+  ["Obsidian"]            = "md.obsidian",
+  ["Spotify"]             = "com.spotify.client",
+  ["Microsoft Teams"]     = "com.microsoft.teams2",
+  ["Microsoft Outlook"]   = "com.microsoft.Outlook",
+  ["Slack"]               = "com.tinyspeck.slackmacgap",
+  ["WhatsApp"]            = "net.whatsapp.WhatsApp",
+  ["DataGrip"]            = "com.jetbrains.datagrip",
+  ["GoLand"]              = "com.jetbrains.goland",
+  ["Claude"]              = "com.anthropic.claudefordesktop",
+  ["Kreya"]               = "app.kreya",
+}
+
+-- Build yabaiMap from `yabai -m query --displays`. Both yabai and Hammerspoon
+-- order displays by x position (LTR), so screenIdx maps 1:1.
+local function buildYabaiMap()
+  local out = hs.execute(YABAI .. " -m query --displays 2>/dev/null")
+  if not out or out == "" then yabaiMap = {}; return end
+  local ok, displays = pcall(hs.json.decode, out)
+  if not ok or not displays then yabaiMap = {}; return end
+  table.sort(displays, function(a, b) return a.frame.x < b.frame.x end)
+  yabaiMap = {}
+  for idx, d in ipairs(displays) do
+    yabaiMap[idx] = d.spaces  -- list of global space indices for this screen
+  end
+end
+
+local function yabaiMoveWindowToSpace(win, screenIdx, spaceIdx)
+  if not next(yabaiMap) then buildYabaiMap() end  -- lazy init if yabai wasn't ready at boot
+  local screenSpaces = yabaiMap[screenIdx]
+  if not screenSpaces then
+    log.wf("yabai: no space map for screen %d", screenIdx)
+    return
+  end
+  local globalIdx = screenSpaces[spaceIdx]
+  if not globalIdx then
+    log.wf("yabai: screen %d has no space at index %d (only %d)", screenIdx, spaceIdx, #screenSpaces)
+    return
+  end
+  hs.execute(string.format("%s -m window %d --space %d 2>/dev/null", YABAI, win:id(), globalIdx))
+end
+
+-- Place windows for apps not accessible via Hammerspoon's accessibility API
+-- (Arc has no standard AXWindows; Ghostty runs as separate processes per window).
+-- Must be called AFTER placeAllExistingWindows so windowCounter/windowSlots
+-- from HS-visible windows are already set (avoids double-counting Ghostty #1).
+local function yabaiPlaceApps()
+  if not next(yabaiMap) then buildYabaiMap() end  -- lazy init
+  local out = hs.execute(YABAI .. " -m query --windows 2>/dev/null")
+  if not out or out == "" then return end
+  local ok, wins = pcall(hs.json.decode, out)
+  if not ok then return end
+  table.sort(wins, function(a, b) return a.id < b.id end)  -- stable ordering
+  for _, w in ipairs(wins) do
+    local bid = YABAI_APP_NAME_TO_BID[w.app]
+    if bid and layout[bid] and not windowSlots[w.id]
+       and (w.frame.w >= 500 and w.frame.h >= 300) then
+      local pRule = layout[bid]
+      local sRule = spaceLayout and spaceLayout[bid]
+      windowCounter[bid] = (windowCounter[bid] or 0) + 1
+      local idx = ((windowCounter[bid] - 1) % #pRule) + 1
+      windowSlots[w.id] = idx
+      local screenIdx = pRule[idx]
+      local spaceIdx = sRule and sRule[((idx - 1) % #sRule) + 1] or 1
+      local globalSpace = yabaiMap[screenIdx] and yabaiMap[screenIdx][spaceIdx]
+      if globalSpace then
+        log.f("yabai: %s #%d -> screen %d space %d (global %d)", w.app, windowCounter[bid], screenIdx, spaceIdx, globalSpace)
+        hs.execute(string.format("%s -m window %d --space %d 2>/dev/null", YABAI, w.id, globalSpace))
+      end
+    end
+  end
+end
+
+-- ---------------------------------------------------------------------------
+-- Space helpers
+-- ---------------------------------------------------------------------------
+
+-- Return user (non-fullscreen) spaces for a screen in Mission Control order.
+local function userSpacesForScreen(screen)
+  local all = hs.spaces.spacesForScreen(screen) or {}
+  local result = {}
+  for _, sid in ipairs(all) do
+    if hs.spaces.spaceType(sid) == "user" then
+      result[#result+1] = sid
+    end
+  end
+  return result
+end
+
+-- Create user spaces on screen until at least n exist.
+-- Uses hs.spaces.addSpaceToScreen (silent, no Mission Control flash).
+local function ensureSpaces(screen, n)
+  local spaces = userSpacesForScreen(screen)
+  while #spaces < n do
+    hs.spaces.addSpaceToScreen(screen, false)
+    spaces = userSpacesForScreen(screen)
+  end
+end
+
+-- ---------------------------------------------------------------------------
+-- Window placement
+-- ---------------------------------------------------------------------------
+
+local function screensLTR()
+  local screens = hs.screen.allScreens()
+  table.sort(screens, function(a, b)
+    return a:fullFrame().x < b:fullFrame().x
+  end)
+  return screens
+end
+
+-- isRetry=true reuses the stored slot without incrementing the counter,
+-- so a second placement attempt doesn't shift subsequent windows.
+local function placeWindow(win, isRetry)
+  if not win or not win:isStandard() then return end
+  local sz = win:size()
+  if sz.w < 500 or sz.h < 300 then return end  -- skip extension popups / small overlay windows
+  local app = win:application()
+  if not app then return end
+  local bid = app:bundleID()
+  if not bid then return end
+  local rule = layout[bid]
+  if not rule then return end
+
+  local screens = screensLTR()
+  local wid = win:id()
+  local idx
+  if isRetry then
+    idx = windowSlots[wid]
+    if not idx then return end  -- window was never initially placed; skip
+  else
+    windowCounter[bid] = (windowCounter[bid] or 0) + 1
+    idx = ((windowCounter[bid] - 1) % #rule) + 1
+    windowSlots[wid] = idx
+  end
+
+  local targetIdx = rule[idx]
+  local target = screens[targetIdx]
+  if not target then
+    log.wf("layout: %s wants screen %d but only %d connected", bid, targetIdx, #screens)
+    return
+  end
+
+  log.f("layout: %s window #%d -> screen %d (%s)", bid, idx, targetIdx, target:name())
+  win:moveToScreen(target, true, true, 0)  -- noResize=true; avoids fights with apps that manage their own size
+
+  if spaceLayout then
+    local sRule = spaceLayout[bid]
+    if sRule then
+      local sIdx = ((idx - 1) % #sRule) + 1
+      local targetSpaceNum = sRule[sIdx]
+      local spaces = userSpacesForScreen(target)
+      local targetSpace = spaces[targetSpaceNum]
+      if targetSpace then
+        log.f("space:  %s window #%d -> screen %d space %d", bid, idx, targetIdx, targetSpaceNum)
+        yabaiMoveWindowToSpace(win, targetIdx, targetSpaceNum)
+      else
+        log.wf("space:  %s wants space %d but only %d on screen", bid, targetSpaceNum, #spaces)
+      end
+    end
+  end
+end
+
+local function placeAllExistingWindows()
+  for bid, _ in pairs(layout) do
+    for _, app in ipairs(hs.application.applicationsForBundleID(bid)) do
+      for _, win in ipairs(app:allWindows()) do
+        placeWindow(win)
+      end
+    end
+  end
+end
+
+local function applyPreset()
+  local name = pinnedPreset or signatureToPreset()
+  if not presets[name] then
+    log.wf("preset '%s' not defined; falling back to laptop", name)
+    name = "laptop"
+  end
+  if name == activePreset then return end
+  activePreset  = name
+  layout        = presets[name] or {}
+  spaceLayout   = spaceLayouts[name]
+  windowCounter = {}
+  windowSlots   = {}
+  log.f("preset: %s (%d screens, %s)", name, #hs.screen.allScreens(),
+    pinnedPreset and "pinned" or "auto")
+  hs.alert.show("Hammerspoon: " .. name, 1.5)
+
+  if spaceLayout and next(spaceLayout) then
+    -- Compute max space needed per physical screen and ensure they exist.
+    local screens = screensLTR()
+    local maxSpacePerScreen = {}
+    for bid, sRule in pairs(spaceLayout) do
+      local pRule = layout[bid] or { 1 }
+      for i, spaceNum in ipairs(sRule) do
+        local screenIdx = pRule[((i-1) % #pRule) + 1]
+        if not maxSpacePerScreen[screenIdx] or spaceNum > maxSpacePerScreen[screenIdx] then
+          maxSpacePerScreen[screenIdx] = spaceNum
+        end
+      end
+    end
+    for screenIdx, needed in pairs(maxSpacePerScreen) do
+      if screens[screenIdx] then ensureSpaces(screens[screenIdx], needed) end
+    end
+    -- Let newly created spaces settle, rebuild yabai map, then place windows.
+    hs.timer.doAfter(0.5, function() buildYabaiMap(); placeAllExistingWindows(); yabaiPlaceApps() end)
+  else
+    buildYabaiMap()
+    placeAllExistingWindows()
+    yabaiPlaceApps()
+  end
+end
+
+-- ---------------------------------------------------------------------------
+-- Watchers
+-- ---------------------------------------------------------------------------
+
+local wfilter = hs.window.filter.new(nil)
+wfilter:subscribe(hs.window.filter.windowCreated, function(win)
+  hs.timer.doAfter(0.75, function() placeWindow(win, false) end)  -- initial placement
+  hs.timer.doAfter(2.5,  function() placeWindow(win, true)  end)  -- retry in case app moved itself back
+end)
+
+local appWatcher = hs.application.watcher.new(function(_, event, app)
+  if event == hs.application.watcher.terminated then
+    local bid = app:bundleID()
+    if bid then windowCounter[bid] = nil end
+  end
+end)
+appWatcher:start()
+
+-- Display config changed → re-evaluate active preset. Debounced: macOS fires
+-- this several times during dock/undock.
+local screenWatcher = hs.screen.watcher.new(function()
+  hs.timer.doAfter(0.75, applyPreset)
+end)
+screenWatcher:start()
+
+-- ---------------------------------------------------------------------------
+-- IPC entry points
+-- ---------------------------------------------------------------------------
+
+function preset(name)
+  if name == nil or name == "auto" then
+    pinnedPreset = nil
+    activePreset = nil
+    applyPreset()
+    return "preset: unpinned, now " .. tostring(activePreset)
+  end
+  if not presets[name] then
+    return "preset: unknown '" .. tostring(name) .. "' (have: "
+      .. table.concat((function() local k = {} for n in pairs(presets) do k[#k+1] = n end return k end)(), ", ")
+      .. ")"
+  end
+  pinnedPreset = name
+  activePreset = nil
+  applyPreset()
+  return "preset: pinned to " .. name
+end
+
+function currentPreset()
+  return string.format("%s (%s, %d screens)",
+    tostring(activePreset),
+    pinnedPreset and "pinned" or "auto",
+    #hs.screen.allScreens())
+end
+
+function commApps()
+  local apps = {
+{{- if eq .machine "work" }}
+    "com.microsoft.teams2",
+    "com.microsoft.Outlook",
+    "com.tinyspeck.slackmacgap",
+    "net.whatsapp.WhatsApp",
+    "com.spotify.client",
+{{- end }}
+  }
+  for _, bid in ipairs(apps) do
+    hs.application.launchOrFocusByBundleID(bid)
+  end
+  return ("commApps: launched %d apps"):format(#apps)
+end
+
+function snapAll()
+  windowCounter = {}
+  windowSlots   = {}
+  buildYabaiMap()
+  placeAllExistingWindows()
+  yabaiPlaceApps()
+  return "snapAll: replayed preset " .. tostring(activePreset)
+end
+
+-- ---------------------------------------------------------------------------
+-- Bootstrap
+-- ---------------------------------------------------------------------------
+
+hs.timer.doAfter(3.0, applyPreset)  -- give yabai and spaces time to settle at boot
+log.i("init.lua loaded")

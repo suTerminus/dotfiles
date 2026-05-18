@@ -1,0 +1,84 @@
+# VSCode extensions inventory.
+# Tags: see inventory/README.md.
+# Generated from tools/discovery/output/decisions.md, 2026-05-09.
+
+extensions:
+  # ---------- Public [] (12 universal core) ----------
+  - id: catppuccin.catppuccin-vsc
+    tags: []
+  - id: anthropic.claude-code
+    tags: []
+  - id: esbenp.prettier-vscode
+    tags: []
+  - id: davidanson.vscode-markdownlint
+    tags: []
+  - id: redhat.vscode-yaml
+    tags: []
+  - id: tamasfe.even-better-toml
+    tags: []
+  - id: yzhang.markdown-all-in-one
+    tags: []
+  - id: mhutchie.git-graph
+    tags: []
+  - id: mermaidchart.vscode-mermaid-chart
+    tags: []
+  - id: docker.docker
+    tags: []
+  - id: ms-vscode-remote.remote-containers
+    tags: []
+  - id: mechatroner.rainbow-csv
+    tags: []
+  # ---------- Optional buckets ----------
+  - id: golang.go
+    tags: [optional, go]
+  - id: rust-lang.rust-analyzer
+    tags: [optional, rust]
+  - id: dbaeumer.vscode-eslint
+    tags: [optional, web]
+  - id: svelte.svelte-vscode
+    tags: [optional, web]
+  - id: prisma.prisma
+    tags: [optional, web]
+  - id: firsttris.vscode-jest-runner
+    tags: [optional, web]
+  - id: 42crunch.vscode-openapi
+    tags: [optional, openapi]
+  - id: arjun.swagger-viewer
+    tags: [optional, openapi]
+  - id: quicktype.quicktype
+    tags: [optional, openapi]
+  - id: bufbuild.vscode-buf
+    tags: [optional, proto]
+  - id: ms-vscode.makefile-tools
+    tags: [optional, make]
+  - id: ciarant.vscode-structurizr
+    tags: [optional, arch]
+  - id: systemticks.c4-dsl-extension
+    tags: [optional, arch]
+  # ML / Jupyter / Python (grouped)
+  - id: ms-toolsai.jupyter
+    tags: [optional, ml]
+  - id: ms-toolsai.jupyter-keymap
+    tags: [optional, ml]
+  - id: ms-toolsai.jupyter-renderers
+    tags: [optional, ml]
+  - id: ms-toolsai.vscode-jupyter-cell-tags
+    tags: [optional, ml]
+  - id: ms-toolsai.vscode-jupyter-slideshow
+    tags: [optional, ml]
+  - id: ms-python.python
+    tags: [optional, ml]
+  - id: ms-python.vscode-pylance
+    tags: [optional, ml]
+  - id: ms-python.debugpy
+    tags: [optional, ml]
+  - id: ms-python.black-formatter
+    tags: [optional, ml]
+  - id: ms-python.isort
+    tags: [optional, ml]
+  - id: ms-python.vscode-python-envs
+    tags: [optional, ml]
+  - id: ms-dotnettools.vscode-dotnet-modernize
+    tags: [optional, dotnet]
+  - id: ms-dotnettools.vscode-dotnet-runtime
+    tags: [optional, dotnet]

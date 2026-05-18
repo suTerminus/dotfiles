@@ -1,0 +1,103 @@
+## ~/.zshrc
+## managed by chezmoi via home/dot_zshrc.tmpl in github.com/suTerminus/dotfiles.
+## edit the template, not this file -- `chezmoi apply` overwrites.
+
+# Homebrew shellenv. Phase 0 also writes this to ~/.zprofile; sourcing it here
+# guarantees PATH for non-login interactive shells (e.g., terminal multiplexers).
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# Completion system.
+autoload -Uz compinit
+compinit -i
+
+# Source modular config: exports first (so $EDITOR etc. are set before
+# any tool below references them), then aliases, then functions.
+[ -r "$HOME/.zsh/exports/.exports"     ] && source "$HOME/.zsh/exports/.exports"
+[ -r "$HOME/.zsh/aliases/.aliases"     ] && source "$HOME/.zsh/aliases/.aliases"
+[ -r "$HOME/.zsh/functions/.functions" ] && source "$HOME/.zsh/functions/.functions"
+# Overlay-provided aliases (only present after the relevant chezmoi
+# overlay has been applied).
+[ -r "$HOME/.zsh/aliases/.aliases-personal" ] && source "$HOME/.zsh/aliases/.aliases-personal"
+[ -r "$HOME/.zsh/aliases/.aliases-enersis" ] && source "$HOME/.zsh/aliases/.aliases-enersis"
+# Private env (not chezmoi-managed; user populates via dotfiles-private
+# overlay or by hand).
+[ -r "$HOME/.private.zshenv"           ] && source "$HOME/.private.zshenv"
+
+# Keybindings.
+bindkey -s '^e' 'nvim $(fzf)\n'
+bindkey '\e[A' history-beginning-search-backward
+bindkey '\e[B' history-beginning-search-forward
+
+# zsh-autosuggestions: Fish-style ghost-text inline. Accept with → (right
+# arrow) or End. Installed via Phase 1 brew bundle as zsh-autosuggestions.
+__zah_autosuggest="${HOMEBREW_PREFIX:-/opt/homebrew}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+[ -r "$__zah_autosuggest" ] && source "$__zah_autosuggest"
+unset __zah_autosuggest
+
+# atuin: contextual shell history (sqlite-backed; cwd/exit/duration aware).
+# Default keybinds: Ctrl+R for search, ↑ for prefix search (replaces our
+# bindkey above, but atuin's prefix search includes contextual ranking).
+# Enable with `atuin register` and `atuin sync` if you want cloud sync.
+if command -v atuin >/dev/null 2>&1; then
+  eval "$(atuin init zsh --disable-up-arrow)"
+fi
+
+# mise: language runtimes (go, node, python, ...).
+# MISE_DATA_DIR points at ~/.mise to avoid a permission issue on systems
+# where ~/.local/share is root-owned (see captain's log; long-term fix
+# is `sudo chown -R $USER:staff ~/.local/share` then unset this).
+export MISE_DATA_DIR="$HOME/.mise"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
+# direnv: per-directory env via .envrc.
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
+
+# zoxide: smarter `cd`.
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+# fzf: fuzzy finder keybindings + completion.
+if [ -f "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/fzf/shell/key-bindings.zsh" ]; then
+  source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/fzf/shell/key-bindings.zsh"
+fi
+if [ -f "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/fzf/shell/completion.zsh" ]; then
+  source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/fzf/shell/completion.zsh"
+fi
+
+# flux completion (if installed).
+command -v flux >/dev/null 2>&1 && . <(flux completion zsh)
+
+# Theme sync hook: re-reads ~/.theme-mode and re-exports BAT_THEME +
+# FZF_DEFAULT_OPTS before every prompt. Without this, fzf/bat
+# subprocesses keep using the env values from when the shell started,
+# even after `theme-toggle` has flipped the truth file.
+autoload -Uz add-zsh-hook
+if typeset -f __theme_sync >/dev/null 2>&1; then
+  add-zsh-hook precmd __theme_sync
+fi
+
+# Starship prompt — the last thing we activate.
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
+
+# Auto-start tmux only inside real Ghostty windows. Requiring TERM_PROGRAM=ghostty
+# prevents this from firing in Raycast script contexts, LaunchAgent shells, or any
+# other non-terminal invocation that sources .zshrc interactively.
+if [[ -o interactive ]] \
+   && [[ "${TERM_PROGRAM:-}" == "ghostty" ]] \
+   && [[ "$(ps -p $PPID -o comm= 2>/dev/null)" != *tmux* ]] \
+   && [ -z "${SSH_TTY:-}" ] \
+   && [ -z "${VSCODE_INJECTION:-}" ] \
+   && command -v tmux >/dev/null 2>&1; then
+  exec tmux new-session -A -s main
+fi

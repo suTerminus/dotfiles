@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# yabai config — float layout only.
+# Tiling is handled by Amethyst; yabai is used solely as a space-assignment
+# API called by Hammerspoon via `yabai -m window <id> --space <n>`.
+yabai -m config layout float

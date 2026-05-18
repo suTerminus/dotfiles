@@ -1,0 +1,32 @@
+# Language runtimes managed via mise.
+# Tags: see inventory/README.md.
+# Generated from tools/discovery/output/decisions.md, 2026-05-09.
+#
+# mise resolves "1.26" to the latest 1.26.x patch release etc; pin to
+# full patch versions only when reproducing a specific build.
+
+tools:
+  go:
+    versions: ["1.26", "1.25", "1.24"]   # newest first
+    in_use: "1.26"
+    tags: []
+
+  node:
+    versions: ["24", "22"]               # 24 = current LTS Krypton (Oct 2025); 22 = previous LTS Jod
+    in_use: "24"
+    tags: []
+
+  python:
+    versions: ["3.14", "3.11"]           # 3.14 = current stable; 3.11 = pinned for specific projects
+    in_use: "3.14"
+    tags: []
+
+  rust:
+    versions: ["latest"]                 # mise resolves to latest stable
+    in_use: "latest"
+    tags: []
+
+  java:
+    versions: ["temurin-21"]             # 21 = current LTS
+    in_use: "temurin-21"
+    tags: [optional, java, work]

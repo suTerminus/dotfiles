@@ -1,0 +1,5 @@
+# Helm plugins managed via `helm plugin install` (public-scope only).
+# Work-scope plugins live in the work overlay's inventory/helm-plugins-<work>.yaml.
+# helm itself is in the work overlay's inventory/brew-<work>.yaml.
+
+plugins: []

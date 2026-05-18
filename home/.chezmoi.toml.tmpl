@@ -1,0 +1,56 @@
+{{/* First-run prompts. Defaults are hostname-driven: name your Mac via
+     `sudo scutil --set ComputerName <constellation>` once, then
+     `chezmoi init` reads the matching machine block below — Enter
+     accepts every prompt.
+
+     Naming theme: constellations. Add new machines as `else if` blocks
+     and they auto-configure on init. */}}
+
+{{- $hostname  := output "scutil" "--get" "ComputerName" | trim -}}
+{{- $machine   := "personal" -}}
+{{- $name      := "Berkay" -}}
+{{- $email     := "dev@grpy.xyz" -}}
+{{- $tagsList  := list -}}
+
+{{/* ----- machine registry ----- */}}
+{{- if eq $hostname "draco" -}}
+  {{- /* Work MacBook (black). */ -}}
+  {{- $machine  = "work" -}}
+  {{- /* Work email default is set by the personal overlay's machine-aware
+         template; the public default above is the personal address so a
+         clone of the public repo alone never carries a real work email. */ -}}
+  {{- $tagsList = list "media" "go" "node" "openapi" "proto" "arch" -}}
+{{- else if eq $hostname "cygnus" -}}
+  {{- /* Reserved (swan, white machine). */ -}}
+  {{- $machine  = "personal" -}}
+  {{- $tagsList = list "media" "go" "node" "openapi" "proto" "personal-vpn" -}}
+{{- else if eq $hostname "lyra" -}}
+  {{- /* Reserved (lyre — secondary personal). */ -}}
+  {{- $machine  = "personal" -}}
+  {{- $tagsList = list "media" "dj" -}}
+{{- end -}}
+{{/* ----- end registry ----- */}}
+
+{{- $machine = promptChoiceOnce . "machine" "Machine type" (list "work" "personal") $machine -}}
+{{- $name    = promptStringOnce . "name"    "Git author name"  $name -}}
+{{- $email   = promptStringOnce . "email"   "Git author email" $email -}}
+
+{{/* Prefer an existing include_tags list from the previous config (so
+     a re-init never silently drops the user's edits); otherwise fall
+     back to the hostname-registry default computed above. */}}
+{{- if hasKey . "include_tags" -}}
+  {{- $tagsList = .include_tags -}}
+{{- end -}}
+
+sourceDir = "{{ .chezmoi.homeDir }}/code/personal/dotfiles"
+
+[data]
+    machine = {{ $machine | quote }}
+    name    = {{ $name | quote }}
+    email   = {{ $email | quote }}
+    hostname = {{ $hostname | quote }}
+
+    # Per-machine default --include-tag values consumed by scripts/setup.sh.
+    # Hostname-driven defaults populate this on first init; edit this file
+    # directly afterward to override.
+    include_tags = [{{- range $i, $t := $tagsList -}}{{- if $i -}}, {{ end -}}{{ $t | quote -}}{{- end -}}]

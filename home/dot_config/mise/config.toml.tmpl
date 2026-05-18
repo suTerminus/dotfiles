@@ -1,0 +1,18 @@
+{{/* Rendered from inventory/mise.yaml. .chezmoi.workingTree is the repo root
+     (parent of the `home/` source dir set by .chezmoiroot). */}}
+{{- $inv := joinPath .chezmoi.workingTree "inventory" "mise.yaml" -}}
+{{- $mise := (include $inv | fromYaml) -}}
+# managed by chezmoi via home/dot_config/mise/config.toml.tmpl.
+# source of truth: inventory/mise.yaml.
+
+[tools]
+{{- range $tool, $spec := $mise.tools }}
+{{- $tags := $spec.tags | default (list) }}
+{{- if not (has "optional" $tags) }}
+{{- if or (not (has "work" $tags)) (eq $.machine "work") }}
+{{- if or (not (has "personal" $tags)) (eq $.machine "personal") }}
+{{ $tool }} = "{{ $spec.in_use }}"
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

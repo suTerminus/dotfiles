@@ -1,0 +1,85 @@
+#!/usr/bin/env zsh
+## ~/.zsh/aliases/.aliases
+## managed by chezmoi via home/dot_zsh/aliases/dot_aliases.tmpl
+
+# Editor — direct alias avoids the $EDITOR expansion-order trap.
+alias e='nvim'
+alias v='nvim'
+
+# Markdown viewer (charm.sh glow): `md README.md` or `<cmd> | md`.
+if command -v glow >/dev/null 2>&1; then
+  alias md='glow -p'    # -p = pager mode (less-style)
+fi
+
+# Refresh ~/.private.zshenv (PERSONAL_GH_TOKEN, NPM_TOKEN) from Bitwarden.
+# Lives in dotfiles-private; aliased here for discoverability across
+# both work and personal overlays.
+alias env-refresh='$HOME/code/personal/dotfiles-private/tools/sync-private-env.sh && source ~/.private.zshenv'
+
+# Fetch + ff-only pull across all six dotfiles working trees (public,
+# private, enersis overlays plus the two chezmoi-overlay clones). Never
+# pushes, never resets. Repos with local changes or non-ff divergence
+# are skipped with a loud WARN.
+alias dotfiles-sync='$HOME/code/personal/dotfiles/scripts/dotfiles-sync.sh'
+
+# Unix
+alias ln="ln -v"
+alias mkdir="mkdir -p"
+
+# Easier navigation: .., ..., ...., and -
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias -- -="cd -"
+
+# Shortcuts
+alias d="cd ~/Documents"
+alias dl="cd ~/Downloads"
+alias dof="cd ~/code/personal/dotfiles"
+alias rep="cd ~/code"
+alias clr="clear"
+alias k="kubectl "
+alias yqs="yq -i -P 'sort_keys(..)' "
+
+# replace ls with eza (was exa)
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza'
+fi
+alias ll="ls -alF"
+alias lsl="ls -alF1"
+alias lsd="ls -alF | rg '^d'"
+alias lsf="ls -alF | rg '^-'"
+
+# git
+alias gpl='git pull'
+alias gps='git push'
+alias gp='git pull && git push'
+alias gaa="git add ."
+alias gcl="gh repo clone"
+alias gc="git commit "
+alias gcm="git commit -m "
+alias gsa="git stash --include-untracked"
+alias gsl="git stash list"
+alias gss="git stash show"
+alias gsp="git stash pop"
+alias gs="git status"
+alias gd="git diff"
+
+# macOS toolery
+alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
+command -v hd > /dev/null || alias hd="hexdump -C"
+command -v md5sum > /dev/null || alias md5sum="md5"
+command -v sha1sum > /dev/null || alias sha1sum="shasum"
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
+alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
+alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
+
+# Intuitive map function
+alias map="xargs -n1"
+
+# Reload the shell (i.e. invoke as a login shell)
+alias reload="exec ${SHELL} -l"
+
+# Print each PATH entry on a separate line
+alias path='echo -e ${PATH//:/\\n}'

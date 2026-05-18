@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# chezmoi modify_ script — merges chezmoi-managed keys into
+# ~/.claude/settings.json while preserving anything Claude Code or the user
+# added (e.g. "model", "feedbackSurveyState", etc.).
+#
+# chezmoi pipes the current file contents on stdin and replaces the target
+# with what we emit on stdout. If the file is absent, stdin is empty.
+#
+# Merge rule: existing-first, desired-second under `jq * jq` — desired wins
+# on key conflicts, anything not mentioned in desired is preserved.
+set -euo pipefail
+
+existing="$(cat)"
+[ -z "$existing" ] && existing='{}'
+
+desired="$(cat <<'EOF'
+{
+  "_comment": "managed by chezmoi via home/dot_claude/modify_settings.json.tmpl",
+  "teammateMode": "splitPane",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(brew:*)",
+      "Bash(gh:*)",
+      "Bash(git:*)",
+      "Bash(chezmoi:*)",
+      "Bash(mise:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(uv:*)",
+      "Bash(uvx:*)",
+      "Bash(claude:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(jq:*)",
+      "Bash(yq:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(test:*)",
+      "Bash(which:*)",
+      "Bash(command:*)",
+      "Read(./*)",
+      "Read(./**)",
+      "Read(~/.config/**)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:claude.ai)",
+      "WebFetch(domain:anthropic.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:chezmoi.io)"{{ if eq .machine "work" }},
+      "Bash(aws:*)",
+      "Bash(kubectl:*)",
+      "Bash(helm:*)",
+      "Bash(k9s:*)",
+      "WebFetch(domain:atlassian.net)"{{ end }}
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
+EOF
+)"
+
+# Deep-merge: existing first, desired second. jq's `*` merges objects
+# recursively (env block stays additive — Claude Code's other env vars
+# survive); arrays and scalars under desired keys replace existing.
+jq -n \
+  --argjson existing "$existing" \
+  --argjson desired "$desired" \
+  '$existing * $desired'

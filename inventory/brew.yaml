@@ -1,0 +1,199 @@
+# Homebrew inventory: taps, formulae, casks.
+# Tags: see inventory/README.md.
+#
+# Generated from tools/discovery/output/decisions.md, 2026-05-09.
+
+taps:
+  - name: bufbuild/buf
+    tags: []
+  - name: derailed/k9s
+    tags: []
+  - name: koekeishiya/formulae
+    tags: []
+formulae:
+  # ---------- Public [] ----------
+  - name: act
+    tags: []
+  - name: atuin
+    tags: []
+    note: contextual shell history (cwd/exit/duration-aware Ctrl+R replacement); optional cloud sync.
+  - name: bash
+    tags: []
+  - name: bat
+    tags: []
+  - name: bufbuild/buf/buf
+    tags: []
+  - name: bitwarden-cli
+    tags: []
+    note: secrets CLI; Phase 2 P2-00 unlocks the vault and chezmoi templates use bitwardenFields
+  - name: chezmoi
+    tags: []
+    note: dotfiles manager; Phase 1 P1-10 eagerly installs if missing, then declared here so brew bundle keeps it
+  - name: cloc
+    tags: []
+  - name: coreutils
+    tags: []
+  - name: diffnav
+    tags: []
+    note: TUI git-diff pager (delta-based, with file tree). dlvhdr/diffnav.
+  - name: dockutil
+    note: Idempotent CLI for Dock contents. Drives the curated-dock system tweak in P3-10.
+  - name: docutils
+    tags: []
+  - name: eza
+    tags: []
+  - name: fd
+    tags: []
+  - name: findutils
+    tags: []
+  - name: fpp
+    tags: []
+  - name: fzf
+    tags: []
+  - name: gh
+    tags: []
+  - name: git-delta
+    tags: []
+  - name: git-filter-repo
+    tags: []
+  - name: git-lfs
+    tags: []
+  - name: gnu-sed
+    tags: []
+  - name: glow
+    tags: []
+    note: TUI markdown renderer (charm.sh); aliased as `md`.
+  - name: gnupg
+    tags: []
+  - name: gotop
+    tags: []
+  - name: graphviz
+    tags: []
+  - name: grpcurl
+    tags: []
+  - name: helm
+    tags: []
+  - name: hyperfine
+    tags: []
+  - name: jq
+    tags: []
+  - name: k9s
+    tags: []
+  - name: kubeconform
+    tags: []
+  - name: kubernetes-cli
+    tags: []
+  - name: kubie
+    tags: []
+    note: per-shell kubectl context isolation; each tmux pane gets its own context
+  - name: mas
+    tags: []
+  - name: mise
+    tags: []
+    note: language runtime manager; Phase 1 P1-40 reads inventory/mise.yaml and runs mise install
+  - name: moreutils
+    tags: []
+  - name: neovim
+    tags: []
+  - name: nmap
+    tags: []
+  - name: pandoc
+    tags: []
+  - name: pinentry-mac
+    tags: []
+  - name: reattach-to-user-namespace
+    tags: []
+  - name: ripgrep
+    tags: []
+  - name: scc
+    tags: []
+  - name: sevenzip
+    tags: []
+  - name: starship
+    tags: []
+  - name: tig
+    tags: []
+  - name: tmux
+    tags: []
+  - name: tree
+    tags: []
+  - name: uv
+    tags: []
+  - name: wget
+    tags: []
+  - name: yq
+    tags: []
+  - name: zoxide
+    tags: []
+  - name: zsh
+    tags: []
+  - name: zsh-autosuggestions
+    tags: []
+  - name: zsh-syntax-highlighting
+    tags: []
+  # ---------- Optional [optional, BUCKET] ----------
+  - name: gdal
+    tags: [optional, gis]
+  - name: pmtiles
+    tags: [optional, gis]
+  - name: tippecanoe
+    tags: [optional, gis]
+  - name: node
+    tags: [optional, node]
+  - name: nvm
+    tags: [optional, node]
+  - name: mkdocs
+    tags: [optional, docs]
+  - name: structurizr-cli
+    tags: [optional, docs]
+  - name: cmake
+    tags: [optional, native]
+casks:
+  # ---------- Public [] ----------
+  - name: bitwarden
+    tags: []
+  - name: bruno
+    tags: []
+  - name: claude
+    tags: []
+    note: Claude Desktop app; pairs with Claude Code CLI for cowork
+  - name: devutils
+    tags: []
+  - name: docker
+    tags: []
+  - name: font-fira-code
+    tags: []
+  - name: font-fira-code-nerd-font
+    tags: []
+  - name: ghostty
+    tags: []
+  - name: hammerspoon
+    tags: []
+    note: Lua automation; reactive window-to-display placement, IPC via `hs` CLI. Init.lua at home/dot_hammerspoon/. Needs Accessibility permission on first launch.
+  - name: maccy
+    tags: []
+    note: clipboard history manager; default hotkey Cmd+Shift+C. Search-as-you-type, configurable history size, follows system appearance.
+  - name: orbstack
+    tags: []
+  - name: amethyst
+    tags: []
+  - name: koekeishiya/formulae/yabai
+    tags: []
+    note: window/space placement API used by Hammerspoon (float layout — Amethyst owns tiling). Needs `yabai --start-service` once; LaunchAgent persists across reboots.
+  - name: raycast
+    tags: []
+    note: launcher + clipboard/snippets/window mgmt. Auto-starts at login via P3-10.
+    note: tiling window manager (replaces rectangle).
+  - name: visual-studio-code
+    tags: []
+  - name: vlc
+    tags: []
+  # ---------- Optional [optional, BUCKET] ----------
+  - name: firefox
+    tags: [optional, browser]
+  - name: qgis
+    tags: [optional, gis]
+  - name: anaconda
+    tags: [optional, ml]
+  - name: qmk-toolbox
+    tags: [optional, keyboard]

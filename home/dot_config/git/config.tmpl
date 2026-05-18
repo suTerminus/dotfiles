@@ -1,0 +1,89 @@
+; managed by chezmoi via home/dot_config/git/config.tmpl.
+
+[user]
+    name = {{ .name }}
+    email = {{ .email }}
+    signingkey = ~/.ssh/id_ed25519.pub
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    program = ssh-keygen
+
+[commit]
+    gpgsign = true
+
+[tag]
+    gpgsign = true
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[push]
+    autoSetupRemote = true
+{{- $themeMode := "dark" -}}
+{{- if (stat (joinPath .chezmoi.homeDir ".theme-mode")) -}}
+{{-   $themeMode = (output "cat" (joinPath .chezmoi.homeDir ".theme-mode")) | trim -}}
+{{- end -}}
+{{ if lookPath "delta" }}
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    line-numbers = true
+    side-by-side = false
+    features = catppuccin-{{ $themeMode | replace "dark" "mocha" | replace "light" "latte" }}
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved = default
+
+# Catppuccin delta themes (from github.com/catppuccin/delta).
+[delta "catppuccin-mocha"]
+    dark = true
+    syntax-theme = base16-256
+    file-style = "#cdd6f4" bold
+    file-decoration-style = "#585b70" ul
+    line-numbers-minus-style = "#f38ba8"
+    line-numbers-plus-style = "#a6e3a1"
+    line-numbers-zero-style = "#7f849c"
+    line-numbers-left-style = "#7f849c"
+    line-numbers-right-style = "#7f849c"
+    minus-style = "#cdd6f4" "#3a2e3f"
+    minus-emph-style = "#cdd6f4" "#6e3a4d"
+    plus-style = "#cdd6f4" "#2c3e36"
+    plus-emph-style = "#cdd6f4" "#4d6e3a"
+    hunk-header-style = "#94e2d5" bold
+    hunk-header-decoration-style = "#94e2d5" box
+    hunk-header-file-style = "#cba6f7" bold
+    hunk-header-line-number-style = "#fab387"
+
+[delta "catppuccin-latte"]
+    light = true
+    syntax-theme = base16-256
+    file-style = "#4c4f69" bold
+    file-decoration-style = "#bcc0cc" ul
+    line-numbers-minus-style = "#d20f39"
+    line-numbers-plus-style = "#40a02b"
+    line-numbers-zero-style = "#7c7f93"
+    line-numbers-left-style = "#7c7f93"
+    line-numbers-right-style = "#7c7f93"
+    minus-style = "#4c4f69" "#f4cfd9"
+    minus-emph-style = "#4c4f69" "#e6a4b3"
+    plus-style = "#4c4f69" "#d8e8d0"
+    plus-emph-style = "#4c4f69" "#b8dca5"
+    hunk-header-style = "#179299" bold
+    hunk-header-decoration-style = "#179299" box
+    hunk-header-file-style = "#8839ef" bold
+    hunk-header-line-number-style = "#fe640b"
+{{ end }}

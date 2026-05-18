@@ -1,0 +1,9 @@
+# Mac App Store inventory (public-scope only).
+# Tags: see inventory/README.md.
+#
+# Work-scope MAS apps live in the work overlay's inventory/mas-<work>.yaml.
+
+apps:
+  - name: Xcode
+    appid: "497799835"
+    tags: []

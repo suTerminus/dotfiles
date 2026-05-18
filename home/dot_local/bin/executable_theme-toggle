@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# theme-toggle — flip macOS appearance + propagate to tools.
+#
+# Truth file: ~/.theme-mode contains either `light` or `dark`.
+# The script writes it, flips macOS appearance, then re-applies chezmoi
+# so per-tool templated configs that read ~/.theme-mode pick up the
+# new value. Ghostty auto-switches via its native dark/light theme
+# config without any signal needed.
+#
+# Usage:
+#   theme-toggle           # flip current
+#   theme-toggle light     # set explicitly
+#   theme-toggle dark
+#   theme-toggle --status  # print current
+
+THEME_FILE="$HOME/.theme-mode"
+
+current() {
+  if [ -f "$THEME_FILE" ]; then
+    cat "$THEME_FILE"
+  else
+    # Fall back to macOS appearance if the truth file is missing.
+    if [ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" = "Dark" ]; then
+      printf 'dark'
+    else
+      printf 'light'
+    fi
+  fi
+}
+
+set_mode() {
+  local mode="$1"
+  case "$mode" in
+    light|dark) ;;
+    *) printf 'theme-toggle: invalid mode: %s (use light|dark)\n' "$mode" >&2; exit 2 ;;
+  esac
+  printf '%s\n' "$mode" > "$THEME_FILE"
+
+  # macOS appearance.
+  local osa_mode
+  if [ "$mode" = "dark" ]; then
+    osa_mode='true'
+  else
+    osa_mode='false'
+  fi
+  osascript -e "tell app \"System Events\" to tell appearance preferences to set dark mode to $osa_mode"
+
+  # Re-apply chezmoi so per-tool configs reading ~/.theme-mode regen.
+  if command -v chezmoi >/dev/null 2>&1; then
+    chezmoi apply 2>/dev/null || true
+  fi
+
+  # tmux signal: source the matching theme config if both files exist.
+  local tmux_conf="$HOME/.config/tmux/${mode}.conf"
+  if command -v tmux >/dev/null 2>&1 && [ -f "$tmux_conf" ] && tmux info >/dev/null 2>&1; then
+    tmux source-file "$tmux_conf" 2>/dev/null || true
+  fi
+
+  printf 'theme: %s\n' "$mode"
+}
+
+case "${1:-toggle}" in
+  --status|status)
+    current
+    printf '\n'
+    ;;
+  light|dark)
+    set_mode "$1"
+    ;;
+  toggle|"")
+    if [ "$(current)" = "dark" ]; then
+      set_mode light
+    else
+      set_mode dark
+    fi
+    ;;
+  -h|--help)
+    sed -n '/^# theme-toggle/,/^# Usage:/p; /^#   theme-toggle/p' "$0" | sed 's/^# //;s/^#$//'
+    ;;
+  *)
+    printf 'theme-toggle: unknown command: %s\n' "$1" >&2
+    exit 2
+    ;;
+esac

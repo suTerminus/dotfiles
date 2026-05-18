@@ -1,0 +1,9 @@
+# phase0/Brewfile
+# Minimum tools to bootstrap to Claude Code + Claude Desktop.
+# Everything else lives in the inventory-driven Brewfile in Phase 1+.
+
+brew "gh"      # GitHub CLI: auth, SSH key upload, repo clone
+brew "git"     # Newer than Xcode CLT's bundled git
+brew "node"    # Required by Claude Code
+brew "jq"      # JSON parsing in shell scripts
+cask "claude"  # Claude Desktop app for cowork with Phase 1 agent

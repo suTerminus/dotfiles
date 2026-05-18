@@ -1,0 +1,13 @@
+# kubectl plugins managed via krew (public-scope only).
+# Tags: see inventory/README.md.
+#
+# Work-scope plugins live in the work overlay's inventory/krew-<work>.yaml.
+# krew itself is brewed via the [work] formula in
+# the work overlay's inventory/brew-<work>.yaml (kubectl + clusters are
+# work-side; if you ever need krew on a personal machine, add to public
+# brew.yaml).
+
+plugins:
+  - name: neat
+    tags: []
+    note: strips Kubernetes-managed fields (uid, resourceVersion, ...) from manifest output — generic.

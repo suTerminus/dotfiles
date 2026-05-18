@@ -1,0 +1,93 @@
+# ~/.config/lazygit/config.yml
+# managed by chezmoi via home/dot_config/lazygit/config.yml.tmpl
+# Catppuccin theme from github.com/catppuccin/lazygit; auto-derives
+# Mocha vs Latte from ~/.theme-mode at chezmoi apply time.
+
+{{- $themeMode := "dark" -}}
+{{- if (stat (joinPath .chezmoi.homeDir ".theme-mode")) -}}
+{{-   $themeMode = (output "cat" (joinPath .chezmoi.homeDir ".theme-mode")) | trim -}}
+{{- end -}}
+
+gui:
+  theme:
+{{- if eq $themeMode "light" }}
+    activeBorderColor:
+      - "#8839ef"
+      - bold
+    inactiveBorderColor:
+      - "#4c4f69"
+    optionsTextColor:
+      - "#1e66f5"
+    selectedLineBgColor:
+      - "#bcc0cc"
+    cherryPickedCommitBgColor:
+      - "#179299"
+    cherryPickedCommitFgColor:
+      - "#8839ef"
+    unstagedChangesColor:
+      - "#d20f39"
+    defaultFgColor:
+      - "#4c4f69"
+    searchingActiveBorderColor:
+      - "#df8e1d"
+  authorColors:
+    "*": "#7287fd"
+{{- else }}
+    activeBorderColor:
+      - "#cba6f7"
+      - bold
+    inactiveBorderColor:
+      - "#cdd6f4"
+    optionsTextColor:
+      - "#89b4fa"
+    selectedLineBgColor:
+      - "#45475a"
+    cherryPickedCommitBgColor:
+      - "#94e2d5"
+    cherryPickedCommitFgColor:
+      - "#cba6f7"
+    unstagedChangesColor:
+      - "#f38ba8"
+    defaultFgColor:
+      - "#cdd6f4"
+    searchingActiveBorderColor:
+      - "#f9e2af"
+  authorColors:
+    "*": "#b4befe"
+{{- end }}
+
+  showFileTree: true
+  showCommandLog: false
+  scrollHeight: 2
+  sidePanelWidth: 0.3333
+  expandFocusedSidePanel: false
+  mainPanelSplitMode: flexible
+  language: 'en'
+  timeFormat: '02 Jan 06 15:04 MST'
+  shortTimeFormat: '15:04'
+  mouseEvents: true
+
+git:
+  paging:
+    colorArg: always
+    pager: delta --paging=never
+  commit:
+    signOff: false
+  merging:
+    manualCommit: false
+    args: ''
+  log:
+    order: 'topo-order'
+    showGraph: 'always'
+  skipHookPrefix: WIP
+  autoFetch: true
+  autoRefresh: true
+  fetchAll: true
+  branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=medium {{`{{branchName}}`}} --'
+  allBranchesLogCmd: 'git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=medium'
+
+confirmOnQuit: false
+quitOnTopLevelReturn: true
+disableStartupPopups: false
+notARepository: 'prompt'
+promptToReturnFromSubprocess: true

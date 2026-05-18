@@ -1,0 +1,9 @@
+{{/* Machine-conditional ignore. Phase 1's home/ files are universal, so the
+     personal/work scaffolds below are intentionally empty. Phase 2 fills them
+     in (e.g., to ignore work-only dot_config/aws on personal machines). */}}
+
+{{ if eq .machine "personal" }}
+{{ end }}
+
+{{ if eq .machine "work" }}
+{{ end }}

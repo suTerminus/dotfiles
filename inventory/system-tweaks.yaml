@@ -1,0 +1,176 @@
+# System-level tweaks applied by P3-10. Tag schema in inventory/README.md.
+#
+# Supported kinds:
+#   pam-line   — append a line to a PAM file (sudo-only).
+#   shell-cmd  — run a shell command (optionally with sudo). Probe-then-act:
+#                if `probe` exits 0 the tweak is satisfied and skipped;
+#                otherwise `cmd` runs and `probe` re-runs to confirm.
+#                Probe is mandatory (idempotency contract).
+
+tweaks:
+  - name: touch-id-sudo
+    kind: pam-line
+    file: /etc/pam.d/sudo_local
+    line: "auth sufficient pam_tid.so"
+    sudo: true
+    reason: Reduces sudo friction across re-runs and ongoing brew operations.
+
+  # ---------- Power management (pmset) ----------
+
+  # Idempotency probe pattern for pmset: `pmset -g custom` lists the
+  # custom-profile values across both AC Power: and Battery Power:
+  # sections. We grep the first matching key and check field 2.
+  #
+  # Note: `lidwake` and `autorestart` are Intel-Mac-only settings. On
+  # Apple Silicon Macs, lid-wake is automatic and autorestart is
+  # firmware-managed; pmset accepts the commands but the values don't
+  # appear in `pmset -g custom`. Skipped in the inventory.
+
+  - name: pmset-displaysleep-15min
+    kind: shell-cmd
+    sudo: true
+    probe: 'pmset -g custom 2>/dev/null | awk "\$1 == \"displaysleep\" {print \$2; exit}" | grep -q "^15$"'
+    cmd: 'pmset -a displaysleep 15'
+    reason: Display sleeps after 15 minutes of idle.
+
+  - name: pmset-charging-no-sleep
+    kind: shell-cmd
+    sudo: true
+    probe: 'pmset -g custom 2>/dev/null | awk "/^AC Power:/{f=1;next} /^Battery Power:/{f=0} f && \$1 == \"sleep\" {print \$2; exit}" | grep -q "^0$"'
+    cmd: 'pmset -c sleep 0'
+    reason: Don't sleep the machine while plugged into AC.
+
+  - name: pmset-battery-sleep-5min
+    kind: shell-cmd
+    sudo: true
+    probe: 'pmset -g custom 2>/dev/null | awk "/^Battery Power:/{f=1;next} f && \$1 == \"sleep\" {print \$2; exit}" | grep -q "^5$"'
+    cmd: 'pmset -b sleep 5'
+    reason: Sleep after 5 minutes on battery.
+
+  - name: pmset-no-hibernate
+    kind: shell-cmd
+    sudo: true
+    probe: 'pmset -g custom 2>/dev/null | awk "\$1 == \"hibernatemode\" {print \$2; exit}" | grep -q "^0$"'
+    cmd: 'pmset -a hibernatemode 0'
+    reason: Disable hibernation (faster sleep/wake; SSDs make hibernate redundant).
+
+  # ---------- System metadata ----------
+
+  # ---------- Spotlight ----------
+
+  - name: spotlight-exclude-code
+    kind: shell-cmd
+    sudo: false
+    probe: '[ -f "$HOME/code/.metadata_never_index" ]'
+    cmd: 'touch "$HOME/code/.metadata_never_index"'
+    reason: Exclude ~/code (all repos) from Spotlight indexing; you use ripgrep/Obsidian for content search.
+
+  # ---------- Menu bar / Control Center ----------
+
+  - name: battery-show-percentage
+    kind: shell-cmd
+    sudo: false
+    # macOS Sequoia stores the toggle in the per-host ControlCenter plist,
+    # so we need `-currentHost`. The macos-defaults.yaml schema doesn't
+    # model that flag (it'd require schema + P3-00 lib changes), so we
+    # use shell-cmd here instead.
+    probe: 'defaults -currentHost read com.apple.controlcenter BatteryShowPercentage 2>/dev/null | grep -q "^1$"'
+    cmd: 'defaults -currentHost write com.apple.controlcenter BatteryShowPercentage -bool true && killall ControlCenter 2>/dev/null || true'
+    reason: Show battery percentage in menu bar.
+
+  - name: nvram-no-bootchime
+    kind: shell-cmd
+    sudo: true
+    # nvram outputs `<name>\t<value>`; awk -F'\t' isolates the value
+    # (which may be a literal space or %00 for the muted state).
+    probe: 'nvram SystemAudioVolume 2>/dev/null | awk -F"\t" "{print \$2}" | grep -qE "^( |%00)$"'
+    cmd: 'nvram SystemAudioVolume=" "'
+    reason: Silence the boot chime.
+
+  # ---------- Login items (auto-start at user login) ----------
+  # Probe via `osascript -e "tell application \"System Events\" to get name of every login item"`.
+  # Add via `make login item at end with properties {path:..., hidden:true}`.
+  # The `hidden:true` form starts the app minimized.
+
+  - name: login-item-raycast
+    kind: shell-cmd
+    sudo: false
+    probe: 'osascript -e "tell application \"System Events\" to get name of every login item" 2>/dev/null | tr "," "\n" | grep -qi "Raycast"'
+    cmd: 'osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"/Applications/Raycast.app\", hidden:true}" >/dev/null'
+    reason: Auto-start Raycast at login (always-on launcher).
+
+  - name: login-item-amethyst
+    kind: shell-cmd
+    sudo: false
+    probe: 'osascript -e "tell application \"System Events\" to get name of every login item" 2>/dev/null | tr "," "\n" | grep -qi "Amethyst"'
+    cmd: 'osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"/Applications/Amethyst.app\", hidden:true}" >/dev/null'
+    reason: Auto-start Amethyst (tiling window manager) at login.
+
+  - name: login-item-maccy
+    kind: shell-cmd
+    sudo: false
+    probe: 'osascript -e "tell application \"System Events\" to get name of every login item" 2>/dev/null | tr "," "\n" | grep -qi "Maccy"'
+    cmd: 'osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"/Applications/Maccy.app\", hidden:true}" >/dev/null'
+    reason: Auto-start Maccy (clipboard history) at login.
+
+  - name: login-item-orbstack
+    kind: shell-cmd
+    sudo: false
+    probe: 'osascript -e "tell application \"System Events\" to get name of every login item" 2>/dev/null | tr "," "\n" | grep -qi "OrbStack"'
+    cmd: 'osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"/Applications/OrbStack.app\", hidden:true}" >/dev/null'
+    reason: Auto-start OrbStack (Docker runtime) at login. Remove this entry if you'd rather launch on-demand via a Raycast Quicklink.
+
+  - name: login-item-hammerspoon
+    kind: shell-cmd
+    sudo: false
+    probe: 'osascript -e "tell application \"System Events\" to get name of every login item" 2>/dev/null | tr "," "\n" | grep -qi "Hammerspoon"'
+    cmd: 'osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"/Applications/Hammerspoon.app\", hidden:true}" >/dev/null'
+    reason: Auto-start Hammerspoon at login (reactive window-to-display placement defined in ~/.hammerspoon/init.lua).
+
+  # ---------- Dock ----------
+  # Curated Dock contents, applied via dockutil (idempotent). Sentinel-gated
+  # at ~/.local/state/macbook-setup/dock-built-v1; bump the version suffix to
+  # force a rebuild. Apps that aren't installed are silently skipped, so the
+  # same recipe works on partially-provisioned machines.
+
+  - name: dock-curated-apps
+    kind: shell-cmd
+    sudo: false
+    probe: '[ -f "$HOME/.local/state/macbook-setup/dock-built-v3" ]'
+    cmd: |
+      if ! command -v dockutil >/dev/null 2>&1; then
+        echo "dockutil not on PATH; ensure it is in inventory/brew.yaml" >&2
+        exit 1
+      fi
+      dockutil --remove all --no-restart >/dev/null
+      apps=(
+        "/System/Applications/Launchpad.app"
+        "/System/Applications/Apps.app"
+        "/Applications/Arc.app"
+        "/Applications/Slack.app"
+        "/Applications/Microsoft Teams.app"
+        "/Applications/Microsoft Outlook.app"
+        "/Applications/Visual Studio Code.app"
+        "/Applications/DataGrip.app"
+        "/Applications/GoLand.app"
+        "/System/Applications/Reminders.app"
+        "/Applications/Obsidian.app"
+        "/System/Applications/Notes.app"
+        "/Applications/Claude.app"
+      )
+      for app in "${apps[@]}"; do
+        if [ -d "$app" ]; then
+          dockutil --add "$app" --no-restart >/dev/null
+        fi
+      done
+      mkdir -p "$HOME/.local/state/macbook-setup"
+      touch "$HOME/.local/state/macbook-setup/dock-built-v3"
+      killall Dock
+    reason: Curated Dock — Launchpad/Apps (macOS 26+), Arc, comms (Slack/Teams/Outlook), dev (VSCode/DataGrip/GoLand), notes (Reminders/Obsidian/Notes), Claude Desktop. Missing apps are skipped.
+
+  # - name: timezone-europe-zurich
+  #   kind: shell-cmd
+  #   sudo: true
+  #   probe: 'systemsetup -gettimezone 2>/dev/null | grep -q "Europe/Zurich"'
+  #   cmd: 'systemsetup -settimezone "Europe/Zurich"'
+  #   reason: Set timezone (uncomment if you want chezmoi-managed timezone).

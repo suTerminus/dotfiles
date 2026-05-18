@@ -1,0 +1,25 @@
+# Manual installs (public-scope only): declared, never auto-installed.
+# Bootstrap warns if missing on a target machine.
+#
+# Work-scope items live in the work overlay's inventory/manual-<work>.yaml.
+# Personal-scope items live in dotfiles-private/inventory/manual-personal.yaml.
+#
+# Each entry shape:
+#   name:        Display name
+#   tags:        [manual] (plus optional buckets)
+#   reason:      Why this is manual (corporate IT, license-bound, etc.)
+#   detection:   How the bootstrap probes for presence
+#     kind:      app | command | file | launchd
+#     bundle_id: com.example.app          (when kind: app)
+#     command:   some-cli                 (when kind: command)
+#     path:      /Library/...             (when kind: file)
+#     label:     com.example.daemon       (when kind: launchd)
+#   docs_url:    Optional link to internal docs / IT request page
+
+manual:
+  - name: Claude Code URL Handler
+    tags: [manual]
+    reason: Handler app for claude:// URLs; bundled with Claude Code CLI install
+    detection:
+      kind: app
+      bundle_id: com.anthropic.claude-code-url-handler

@@ -1,0 +1,39 @@
+#!/usr/bin/env zsh
+## ~/.zsh/functions/.functions
+## managed by chezmoi via home/dot_zsh/functions/dot_functions.tmpl
+
+# Create a new directory and enter it
+function mkd() {
+  mkdir -p "$@" && cd "$_";
+}
+
+# Determine size of a file or total size of a directory
+function fs() {
+  local arg=-sh
+  du -b /dev/null > /dev/null 2>&1 && arg=-sbh
+  if [[ -n "$@" ]]; then
+    du $arg -- "$@";
+  else
+    du $arg .[^.]* ./*;
+  fi
+}
+
+# `o` opens the current directory or the given path with the default GUI app.
+function o() {
+  if [ $# -eq 0 ]; then
+    open .
+  else
+    open "$@"
+  fi
+}
+
+# `tre` — tree with hidden files, ignoring .git/node_modules/.history,
+# directories first, piped through less.
+function tre() {
+  tree -aC -I '.git|node_modules|.history' --dirsfirst "$@" | less -FRNX;
+}
+
+# Lock the screen (when going AFK)
+function afk() {
+  osascript -e 'tell app "System Events" to key code 12 using {control down, command down}';
+}

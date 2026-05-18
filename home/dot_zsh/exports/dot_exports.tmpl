@@ -1,0 +1,54 @@
+#!/usr/bin/env zsh
+## ~/.zsh/exports/.exports
+## managed by chezmoi via home/dot_zsh/exports/dot_exports.tmpl
+
+# PATH augments. ~/bin and ~/.local/bin first; krew bin appended.
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+[ -d "$HOME/.krew/bin" ] && export PATH="$PATH:$HOME/.krew/bin"
+
+# Editors.
+export EDITOR='nvim'
+export VISUAL='nvim'
+
+# k9s on macOS defaults to ~/Library/Application Support/k9s/ but our
+# chezmoi templates live under ~/.config/k9s/ (XDG style). Point k9s
+# at the XDG path so the Catppuccin skin lands.
+export K9S_CONFIG_DIR="$HOME/.config/k9s"
+
+# Locale.
+export LANG='en_US.UTF-8'
+export LC_ALL='en_US.UTF-8'
+
+# Theme mode lives in ~/.theme-mode (one of `light`, `dark`). The
+# `theme-toggle` script writes it; this function re-reads on every
+# prompt so subprocess invocations of fzf/bat pick up the current
+# value without needing a fresh shell. See zshrc for the precmd hook
+# that calls __theme_sync.
+[ -f "$HOME/.theme-mode" ] || printf 'dark\n' > "$HOME/.theme-mode"
+
+__theme_sync() {
+  local mode
+  mode="$(cat "$HOME/.theme-mode" 2>/dev/null)"
+  case "$mode" in light|dark) ;; *) mode=dark ;; esac
+
+  if [ "$mode" = "light" ]; then
+    export BAT_THEME='Catppuccin Latte'
+    export FZF_DEFAULT_OPTS="\
+ --color=bg+:#ccd0da,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39\
+ --color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78\
+ --color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39\
+ --color=selected-bg:#bcc0cc\
+ --color=border:#ccd0da,label:#4c4f69"
+  else
+    export BAT_THEME='Catppuccin Mocha'
+    export FZF_DEFAULT_OPTS="\
+ --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8\
+ --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc\
+ --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8\
+ --color=selected-bg:#45475a\
+ --color=border:#313244,label:#cdd6f4"
+  fi
+}
+
+# Initial sync (so first prompt has the right values).
+__theme_sync

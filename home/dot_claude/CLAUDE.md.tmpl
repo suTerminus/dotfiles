@@ -1,0 +1,24 @@
+# Global system prompt
+
+managed by chezmoi via `home/dot_claude/CLAUDE.md.tmpl`. machine: **{{ .machine }}**.
+
+You are working with {{ .name }} on a **{{ .machine }}** macOS machine. The
+public dotfiles repo lives at `~/code/personal/dotfiles` and is the source of
+truth for shell, git, mise, and Claude Code configuration; private overlays
+(personal, and on work machines also work) layer on top via chezmoi.
+
+{{ if eq .machine "work" -}}
+This is a **work machine**. Default to work conventions: AWS via SSO,
+kubectl/helm/k9s for cluster work, code under `~/code/work/`. Secrets that
+aren't in 1Password live in Bitwarden under items named like **"AWS Work
+SSO"** and **"Work VPN"** -- reference by name, never paste the value into
+a prompt or commit.
+{{- else -}}
+This is a **personal machine**. Personal projects live under
+`~/code/personal/`. Secrets live in Bitwarden under items named like
+**"AWS Personal SSO"** and **"GitHub Personal"** -- reference by name, never
+paste the value.
+{{- end }}
+
+When in doubt about setup, read the PRDs at the repo root
+(`macbook-setup-prd.md` and the per-phase addenda).

@@ -1,0 +1,63 @@
+## ~/.tmux.conf
+## managed by chezmoi via home/dot_tmux.conf.tmpl
+
+# Prefix: keep default C-b. (Some prefer C-a; uncomment if you do.)
+# unbind C-b
+# set -g prefix C-a
+# bind C-a send-prefix
+
+# Better defaults.
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",xterm-256color:RGB,xterm-ghostty:RGB"
+set -g mouse on
+set -g history-limit 50000
+set -g focus-events on
+set -g escape-time 0
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+set -g status-position top
+
+# Vim-style pane navigation: prefix + h/j/k/l.
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Reload config: prefix + r.
+bind r source-file ~/.tmux.conf \; display "tmux config reloaded"
+
+# Prefix + Tab: jump to the previously focused window.
+bind Tab last-window
+
+# Theme toggle: prefix + T sources the matching catppuccin variant.
+bind T run-shell '~/.local/bin/theme-toggle && tmux display "theme: $(cat ~/.theme-mode)"'
+
+# Source the right Catppuccin variant based on ~/.theme-mode.
+{{- $themeMode := "dark" -}}
+{{- if (stat (joinPath .chezmoi.homeDir ".theme-mode")) -}}
+{{-   $themeMode = (output "cat" (joinPath .chezmoi.homeDir ".theme-mode")) | trim -}}
+{{- end -}}
+{{ if eq $themeMode "light" }}
+source-file ~/.config/tmux/light.conf
+{{- else }}
+source-file ~/.config/tmux/dark.conf
+{{- end }}
+
+# tpm — tmux plugin manager.
+# Bootstrap: clone tpm if missing on first run, then `prefix + I` inside
+# tmux to install the listed plugins.
+if "test ! -d ~/.tmux/plugins/tpm" \
+   "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
+
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+
+# Resurrect/continuum: auto-save sessions across reboots.
+set -g @continuum-restore 'on'
+set -g @continuum-save-interval '15'
+
+# tpm activation MUST be the last line of this file.
+run '~/.tmux/plugins/tpm/tpm'

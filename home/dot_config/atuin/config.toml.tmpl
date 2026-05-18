@@ -1,0 +1,33 @@
+# ~/.config/atuin/config.toml
+# managed by chezmoi via home/dot_config/atuin/config.toml.tmpl
+
+{{- $themeMode := "dark" -}}
+{{- if (stat (joinPath .chezmoi.homeDir ".theme-mode")) -}}
+{{-   $themeMode = (output "cat" (joinPath .chezmoi.homeDir ".theme-mode")) | trim -}}
+{{- end -}}
+
+# Sync: off by default. Enable with `atuin register` then flip auto_sync.
+auto_sync = false
+sync_frequency = "1h"
+update_check = true
+
+# Behaviour.
+search_mode = "fuzzy"
+filter_mode = "global"
+keymap_mode = "auto"
+keymap_cursor = { emacs = "blink-block", vim_insert = "blink-block", vim_normal = "steady-block" }
+
+# Layout: full screen (so it inherits the terminal's background instead
+# of rendering an inline reverse-video panel that flashes light against
+# dark terminals).
+style = "full"
+inline_height = 0
+show_preview = true
+show_help = true
+exit_mode = "return-original"
+word_jump_mode = "subl"
+
+# Theme: rely on style=full to inherit the terminal background. atuin's
+# v18 [theme]/[colors] schema is in flux and was rendering wrong colors
+# on this version; with `style = "full"` the panel takes the full
+# terminal area and picks up Ghostty's Catppuccin bg directly.

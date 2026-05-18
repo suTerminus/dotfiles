@@ -1,0 +1,27 @@
+# Manual installs: declared, never auto-installed.
+# Bootstrap warns if missing on a target machine.
+#
+# Each entry shape:
+#   name:        Display name
+#   tags:        [manual] (plus optional [work]/[personal])
+#   reason:      Why this is manual (corporate IT, license-bound, etc.)
+#   detection:   How the bootstrap probes for presence
+#     kind:      app | command | file | launchd
+#     bundle_id: com.example.app          (when kind: app)
+#     command:   some-cli                 (when kind: command)
+#     path:      /Library/...             (when kind: file)
+#     label:     com.example.daemon       (when kind: launchd)
+#   docs_url:    Link to internal docs / IT request page
+
+manual: []
+
+# Example (uncomment and edit):
+#
+# manual:
+#   - name: Sophos Endpoint
+#     tags: [manual, work]
+#     reason: Corporate IT-managed; install via Enersis IT request
+#     detection:
+#       kind: app
+#       bundle_id: com.sophos.endpoint
+#     docs_url: https://example.internal/sophos

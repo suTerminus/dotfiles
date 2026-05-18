@@ -1,0 +1,456 @@
+# macOS defaults applied by P3-00. Tag schema in inventory/README.md.
+#
+# Curated from suTerminus/dotfiles/.macos (the user's personal script).
+# Add entries as needed; remove ones you disagree with. The tilesize
+# value, key repeat speeds, and locale assume Berkay's preferences —
+# adjust for a different operator.
+
+defaults:
+  # ---------- General UI / UX ----------
+
+  - domain: NSGlobalDomain
+    key: AppleShowScrollBars
+    type: string
+    value: "Always"
+    killall: SystemUIServer
+    note: Always show scrollbars (vs. only when scrolling).
+
+  - domain: NSGlobalDomain
+    key: NSWindowResizeTime
+    type: float
+    value: 0.001
+    note: Speed up Cocoa window resize animation.
+
+  - domain: NSGlobalDomain
+    key: NSNavPanelExpandedStateForSaveMode
+    type: bool
+    value: true
+    note: Expand save panel by default.
+
+  - domain: NSGlobalDomain
+    key: NSDocumentSaveNewDocumentsToCloud
+    type: bool
+    value: false
+    note: New documents save to disk by default, not iCloud.
+
+  - domain: com.apple.LaunchServices
+    key: LSQuarantine
+    type: bool
+    value: false
+    note: Don't show "are you sure you want to open this app" dialog.
+
+  - domain: com.apple.systempreferences
+    key: NSQuitAlwaysKeepsWindows
+    type: bool
+    value: false
+    note: Disable Resume system-wide (clean app launches).
+
+  - domain: NSGlobalDomain
+    key: NSAutomaticCapitalizationEnabled
+    type: bool
+    value: false
+    note: Disable auto-capitalization.
+
+  - domain: NSGlobalDomain
+    key: NSAutomaticDashSubstitutionEnabled
+    type: bool
+    value: false
+    note: Disable smart dashes.
+
+  - domain: NSGlobalDomain
+    key: NSAutomaticPeriodSubstitutionEnabled
+    type: bool
+    value: false
+    note: Disable auto period after double-space.
+
+  - domain: NSGlobalDomain
+    key: NSAutomaticQuoteSubstitutionEnabled
+    type: bool
+    value: false
+    note: Disable smart quotes.
+
+  - domain: NSGlobalDomain
+    key: NSAutomaticSpellingCorrectionEnabled
+    type: bool
+    value: false
+    note: Disable autocorrect.
+
+  # ---------- Keyboard / Input ----------
+
+  - domain: NSGlobalDomain
+    key: ApplePressAndHoldEnabled
+    type: bool
+    value: false
+    note: Disable press-and-hold; allows key repeat instead.
+
+  - domain: NSGlobalDomain
+    key: InitialKeyRepeat
+    type: int
+    value: 10
+    note: Wait ~10*15ms = 150ms before repeat starts.
+
+  - domain: NSGlobalDomain
+    key: KeyRepeat
+    type: int
+    value: 1.5
+    note: Repeat at 1.5*15ms = 22.5ms intervals (just under Mathias's blazing 1).
+
+  - domain: NSGlobalDomain
+    key: AppleKeyboardUIMode
+    type: int
+    value: 3
+    note: Full keyboard access — Tab to all controls in dialogs.
+
+  - domain: NSGlobalDomain
+    key: com.apple.mouse.scaling
+    type: float
+    value: 2.5
+    note: Mouse tracking speed (0.0 slow, 0.875 default, 3.0 max).
+
+  - domain: NSGlobalDomain
+    key: com.apple.trackpad.scaling
+    type: float
+    value: 2.0
+    note: Trackpad tracking speed (0.0 slow, 0.875 default, 3.0 max).
+
+  - domain: NSGlobalDomain
+    key: _HIHideMenuBar
+    type: bool
+    value: true
+    note: Auto-hide the menu bar (cursor at top of screen reveals it). Takes effect on next logout/login.
+
+  - domain: NSGlobalDomain
+    key: AppleLocale
+    type: string
+    value: "en_CH@currency=CHF"
+    note: Swiss-English locale with CHF.
+
+  - domain: NSGlobalDomain
+    key: AppleMeasurementUnits
+    type: string
+    value: "Centimeters"
+    note: Metric measurements.
+
+  - domain: NSGlobalDomain
+    key: AppleMetricUnits
+    type: bool
+    value: true
+    note: Metric units enabled.
+
+  # ---------- Screen / Screensaver ----------
+
+  - domain: com.apple.screensaver
+    key: askForPassword
+    type: int
+    value: 1
+    note: Require password after screensaver/sleep.
+
+  - domain: com.apple.screensaver
+    key: askForPasswordDelay
+    type: int
+    value: 0
+    note: No grace period — password required immediately.
+
+  - domain: com.apple.screencapture
+    key: type
+    type: string
+    value: "png"
+    note: Save screenshots as PNG (vs. default JPG).
+
+  - domain: com.apple.screencapture
+    key: disable-shadow
+    type: bool
+    value: true
+    note: No drop-shadow on screenshot windows.
+
+  # ---------- Finder ----------
+
+  - domain: NSGlobalDomain
+    key: AppleShowAllExtensions
+    type: bool
+    value: true
+    killall: Finder
+    note: Show file extensions for all files.
+
+  - domain: com.apple.finder
+    key: ShowStatusBar
+    type: bool
+    value: true
+    killall: Finder
+    note: Finder status bar (file count, free space).
+
+  - domain: com.apple.finder
+    key: ShowPathbar
+    type: bool
+    value: true
+    killall: Finder
+    note: Finder path bar.
+
+  - domain: com.apple.finder
+    key: _FXShowPosixPathInTitle
+    type: bool
+    value: true
+    killall: Finder
+    note: Window title shows full POSIX path.
+
+  - domain: com.apple.finder
+    key: _FXSortFoldersFirst
+    type: bool
+    value: true
+    killall: Finder
+    note: Folders sort before files.
+
+  - domain: com.apple.finder
+    key: FXDefaultSearchScope
+    type: string
+    value: "SCcf"
+    killall: Finder
+    note: Default search scope = current folder (not whole Mac).
+
+  - domain: com.apple.finder
+    key: FXEnableExtensionChangeWarning
+    type: bool
+    value: false
+    killall: Finder
+    note: No "are you sure you want to change extension?" warning.
+
+  - domain: com.apple.finder
+    key: FXPreferredViewStyle
+    type: string
+    value: "Nlsv"
+    killall: Finder
+    note: Default Finder view = list (Nlsv); other options Flwv (gallery), clmv (column), icnv (icon).
+
+  - domain: com.apple.finder
+    key: WarnOnEmptyTrash
+    type: bool
+    value: false
+    killall: Finder
+    note: No empty-trash warning.
+
+  - domain: com.apple.desktopservices
+    key: DSDontWriteNetworkStores
+    type: bool
+    value: true
+    note: No .DS_Store on network volumes.
+
+  - domain: com.apple.desktopservices
+    key: DSDontWriteUSBStores
+    type: bool
+    value: true
+    note: No .DS_Store on USB volumes.
+
+  - domain: com.apple.frameworks.diskimages
+    key: skip-verify
+    type: bool
+    value: true
+    note: Don't verify checksum when mounting disk images.
+
+  # ---------- Dock ----------
+
+  - domain: com.apple.dock
+    key: autohide
+    type: bool
+    value: true
+    killall: Dock
+    note: Auto-hide Dock.
+
+  - domain: com.apple.dock
+    key: autohide-delay
+    type: float
+    value: 0
+    killall: Dock
+    note: No delay before Dock appears on hover.
+
+  - domain: com.apple.dock
+    key: autohide-time-modifier
+    type: float
+    value: 0
+    killall: Dock
+    note: No animation on hide/show.
+
+  - domain: com.apple.dock
+    key: tilesize
+    type: int
+    value: 36
+    killall: Dock
+    note: Dock icon size in pixels (small).
+
+  - domain: com.apple.dock
+    key: minimize-to-application
+    type: bool
+    value: true
+    killall: Dock
+    note: Minimize windows into the app icon (cleaner Dock).
+
+  - domain: com.apple.dock
+    key: mineffect
+    type: string
+    value: "scale"
+    killall: Dock
+    note: Use scale (faster) instead of genie minimize.
+
+  - domain: com.apple.dock
+    key: launchanim
+    type: bool
+    value: false
+    killall: Dock
+    note: No app-launch bounce animation.
+
+  - domain: com.apple.dock
+    key: show-recents
+    type: bool
+    value: false
+    killall: Dock
+    note: Don't show recent apps in Dock.
+
+  # Dock contents are managed by the `dock-curated-apps` system tweak in
+  # inventory/system-tweaks.yaml — dockutil handles the structured plist
+  # shape (tile-data / file-data dicts) that `defaults write -array` can't.
+
+  - domain: com.apple.dock
+    key: expose-animation-duration
+    type: float
+    value: 0.1
+    killall: Dock
+    note: Speed up Mission Control animation.
+
+  - domain: com.apple.dock
+    key: mru-spaces
+    type: bool
+    value: false
+    killall: Dock
+    note: Don't auto-rearrange Spaces by use (keep deterministic order).
+
+  # ---------- Hot corners (top-left = Mission Control, top-right = Desktop, bottom-left = Screen Saver) ----------
+
+  - domain: com.apple.dock
+    key: wvous-tl-corner
+    type: int
+    value: 2
+    killall: Dock
+    note: Top-left = Mission Control.
+
+  - domain: com.apple.dock
+    key: wvous-tl-modifier
+    type: int
+    value: 0
+    killall: Dock
+
+  - domain: com.apple.dock
+    key: wvous-tr-corner
+    type: int
+    value: 4
+    killall: Dock
+    note: Top-right = Desktop.
+
+  - domain: com.apple.dock
+    key: wvous-tr-modifier
+    type: int
+    value: 0
+    killall: Dock
+
+  - domain: com.apple.dock
+    key: wvous-bl-corner
+    type: int
+    value: 5
+    killall: Dock
+    note: Bottom-left = Screen Saver.
+
+  - domain: com.apple.dock
+    key: wvous-bl-modifier
+    type: int
+    value: 0
+    killall: Dock
+
+  # ---------- Menu bar clock ----------
+
+  - domain: com.apple.menuextra.clock
+    key: DateFormat
+    type: string
+    value: "EEE d MMM HH:mm"
+    killall: SystemUIServer
+    note: e.g. "Sat 10 May 00:25".
+
+  # ---------- Activity Monitor ----------
+
+  - domain: com.apple.ActivityMonitor
+    key: IconType
+    type: int
+    value: 5
+    killall: "Activity Monitor"
+    note: Show CPU usage in Dock icon.
+
+  - domain: com.apple.ActivityMonitor
+    key: ShowCategory
+    type: int
+    value: 0
+    killall: "Activity Monitor"
+    note: Show all processes (not just user's).
+
+  - domain: com.apple.ActivityMonitor
+    key: SortColumn
+    type: string
+    value: "CPUUsage"
+    killall: "Activity Monitor"
+
+  - domain: com.apple.ActivityMonitor
+    key: SortDirection
+    type: int
+    value: 0
+    killall: "Activity Monitor"
+    note: Descending (highest CPU first).
+
+  # ---------- TextEdit ----------
+
+  - domain: com.apple.TextEdit
+    key: RichText
+    type: int
+    value: 0
+    note: Plain-text mode by default.
+
+  - domain: com.apple.TextEdit
+    key: PlainTextEncoding
+    type: int
+    value: 4
+    note: UTF-8 read.
+
+  - domain: com.apple.TextEdit
+    key: PlainTextEncodingForWrite
+    type: int
+    value: 4
+    note: UTF-8 write.
+
+  # ---------- Software Update ----------
+
+  - domain: com.apple.SoftwareUpdate
+    key: AutomaticCheckEnabled
+    type: bool
+    value: true
+    note: Auto-check for updates.
+
+  - domain: com.apple.SoftwareUpdate
+    key: ScheduleFrequency
+    type: int
+    value: 1
+    note: Daily check.
+
+  - domain: com.apple.SoftwareUpdate
+    key: AutomaticDownload
+    type: int
+    value: 1
+    note: Download updates in background.
+
+  - domain: com.apple.SoftwareUpdate
+    key: CriticalUpdateInstall
+    type: int
+    value: 1
+    note: Auto-install security updates.
+
+  # ---------- Photos / ImageCapture ----------
+
+  - domain: com.apple.ImageCapture
+    key: disableHotPlug
+    type: bool
+    value: true
+    note: Don't auto-open Photos when a camera/SD card is plugged in.

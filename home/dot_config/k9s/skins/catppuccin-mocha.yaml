@@ -1,0 +1,86 @@
+# Catppuccin Mocha for k9s.
+# from https://github.com/catppuccin/k9s — embedded so it survives offline.
+k9s:
+  body:
+    fgColor: "#cdd6f4"
+    bgColor: "#1e1e2e"
+    logoColor: "#cba6f7"
+  prompt:
+    fgColor: "#cdd6f4"
+    bgColor: "#1e1e2e"
+    suggestColor: "#89b4fa"
+  info:
+    fgColor: "#fab387"
+    sectionColor: "#cdd6f4"
+  dialog:
+    fgColor: "#cdd6f4"
+    bgColor: "#1e1e2e"
+    buttonFgColor: "#cdd6f4"
+    buttonBgColor: "#cba6f7"
+    buttonFocusFgColor: "#1e1e2e"
+    buttonFocusBgColor: "#a6e3a1"
+    labelFgColor: "#fab387"
+    fieldFgColor: "#cdd6f4"
+  frame:
+    border:
+      fgColor: "#45475a"
+      focusColor: "#585b70"
+    menu:
+      fgColor: "#cdd6f4"
+      keyColor: "#89b4fa"
+      numKeyColor: "#89b4fa"
+    crumbs:
+      fgColor: "#cdd6f4"
+      bgColor: "#1e1e2e"
+      activeColor: "#1e1e2e"
+    status:
+      newColor: "#89dceb"
+      modifyColor: "#89b4fa"
+      addColor: "#a6e3a1"
+      pendingColor: "#fab387"
+      errorColor: "#f38ba8"
+      highlightColor: "#74c7ec"
+      killColor: "#9399b2"
+      completedColor: "#9399b2"
+    title:
+      fgColor: "#cdd6f4"
+      bgColor: "#1e1e2e"
+      highlightColor: "#fab387"
+      counterColor: "#cba6f7"
+      filterColor: "#89b4fa"
+  views:
+    charts:
+      bgColor: "#1e1e2e"
+      defaultDialColors:
+        - "#cba6f7"
+        - "#f38ba8"
+      defaultChartColors:
+        - "#cba6f7"
+        - "#f38ba8"
+    table:
+      fgColor: "#cdd6f4"
+      bgColor: "#1e1e2e"
+      cursorFgColor: "#1e1e2e"
+      cursorBgColor: "#585b70"
+      header:
+        fgColor: "#cdd6f4"
+        bgColor: "#1e1e2e"
+        sorterColor: "#94e2d5"
+    xray:
+      fgColor: "#cdd6f4"
+      bgColor: "#1e1e2e"
+      cursorColor: "#585b70"
+      graphicColor: "#cba6f7"
+      showIcons: false
+    yaml:
+      keyColor: "#89b4fa"
+      colonColor: "#cba6f7"
+      valueColor: "#cdd6f4"
+    logs:
+      fgColor: "#cdd6f4"
+      bgColor: "#1e1e2e"
+      indicator:
+        fgColor: "#cdd6f4"
+        bgColor: "#1e1e2e"
+        toggleOnColor: "#a6e3a1"
+        toggleOffColor: "#9399b2"

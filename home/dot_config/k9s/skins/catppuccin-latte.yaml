@@ -1,0 +1,86 @@
+# Catppuccin Latte for k9s.
+# from https://github.com/catppuccin/k9s — embedded so it survives offline.
+k9s:
+  body:
+    fgColor: "#4c4f69"
+    bgColor: "#eff1f5"
+    logoColor: "#8839ef"
+  prompt:
+    fgColor: "#4c4f69"
+    bgColor: "#eff1f5"
+    suggestColor: "#1e66f5"
+  info:
+    fgColor: "#fe640b"
+    sectionColor: "#4c4f69"
+  dialog:
+    fgColor: "#4c4f69"
+    bgColor: "#eff1f5"
+    buttonFgColor: "#4c4f69"
+    buttonBgColor: "#8839ef"
+    buttonFocusFgColor: "#eff1f5"
+    buttonFocusBgColor: "#40a02b"
+    labelFgColor: "#fe640b"
+    fieldFgColor: "#4c4f69"
+  frame:
+    border:
+      fgColor: "#bcc0cc"
+      focusColor: "#acb0be"
+    menu:
+      fgColor: "#4c4f69"
+      keyColor: "#1e66f5"
+      numKeyColor: "#1e66f5"
+    crumbs:
+      fgColor: "#4c4f69"
+      bgColor: "#eff1f5"
+      activeColor: "#eff1f5"
+    status:
+      newColor: "#04a5e5"
+      modifyColor: "#1e66f5"
+      addColor: "#40a02b"
+      pendingColor: "#fe640b"
+      errorColor: "#d20f39"
+      highlightColor: "#209fb5"
+      killColor: "#7c7f93"
+      completedColor: "#7c7f93"
+    title:
+      fgColor: "#4c4f69"
+      bgColor: "#eff1f5"
+      highlightColor: "#fe640b"
+      counterColor: "#8839ef"
+      filterColor: "#1e66f5"
+  views:
+    charts:
+      bgColor: "#eff1f5"
+      defaultDialColors:
+        - "#8839ef"
+        - "#d20f39"
+      defaultChartColors:
+        - "#8839ef"
+        - "#d20f39"
+    table:
+      fgColor: "#4c4f69"
+      bgColor: "#eff1f5"
+      cursorFgColor: "#eff1f5"
+      cursorBgColor: "#acb0be"
+      header:
+        fgColor: "#4c4f69"
+        bgColor: "#eff1f5"
+        sorterColor: "#179299"
+    xray:
+      fgColor: "#4c4f69"
+      bgColor: "#eff1f5"
+      cursorColor: "#acb0be"
+      graphicColor: "#8839ef"
+      showIcons: false
+    yaml:
+      keyColor: "#1e66f5"
+      colonColor: "#8839ef"
+      valueColor: "#4c4f69"
+    logs:
+      fgColor: "#4c4f69"
+      bgColor: "#eff1f5"
+      indicator:
+        fgColor: "#4c4f69"
+        bgColor: "#eff1f5"
+        toggleOnColor: "#40a02b"
+        toggleOffColor: "#7c7f93"

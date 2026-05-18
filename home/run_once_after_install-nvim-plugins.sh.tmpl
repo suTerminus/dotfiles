@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# chezmoi-managed run-once script. Bootstraps nvim's lazy.nvim plugin
+# manager + installs every plugin declared in init.lua. Subsequent
+# `chezmoi apply` runs only re-execute this script if its template
+# hash changes.
+
+set -euo pipefail
+
+if ! command -v nvim >/dev/null 2>&1; then
+  exit 0
+fi
+
+# Headless `:Lazy! sync` installs all missing plugins, updates existing
+# ones, and exits. Bound at 5 minutes (large dependency graphs on first
+# install can take a while; treesitter parser builds are the slow bit).
+timeout 300 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+
+# Pre-install all treesitter parsers declared in init.lua's
+# ensure_installed list so files open without mid-session fetches.
+# `:TSUpdateSync` blocks until parsers are compiled.
+timeout 300 nvim --headless "+TSUpdateSync" +qa 2>/dev/null || true

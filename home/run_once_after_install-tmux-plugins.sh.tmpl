@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# chezmoi-managed run-once script. Bootstraps tmux plugin manager (tpm)
+# and installs every plugin declared in ~/.tmux.conf.
+#
+# Idempotent: chezmoi tracks the rendered hash and only re-runs when
+# this template changes. The script itself also probes before doing
+# work so manual re-runs are safe.
+
+set -euo pipefail
+
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+
+# Clone tpm if missing.
+if [ ! -d "$TPM_DIR" ]; then
+  git clone --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
+fi
+
+# tpm's install_plugins reads ~/.tmux.conf via tmux's runtime, so it
+# needs to run *inside* a tmux session. Spin up a detached session
+# whose only command is the installer, then let it terminate naturally.
+if command -v tmux >/dev/null 2>&1 && [ -x "$TPM_DIR/bin/install_plugins" ]; then
+  tmux new-session -d -s _bootstrap_tpm "$TPM_DIR/bin/install_plugins" 2>/dev/null || true
+  # Wait briefly for the installer to finish; bound the wait at 30s.
+  for _ in $(seq 1 30); do
+    if ! tmux has-session -t _bootstrap_tpm 2>/dev/null; then
+      break
+    fi
+    sleep 1
+  done
+  tmux kill-session -t _bootstrap_tpm 2>/dev/null || true
+fi

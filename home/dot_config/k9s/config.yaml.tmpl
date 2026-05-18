@@ -1,0 +1,44 @@
+# ~/.config/k9s/config.yaml
+# managed by chezmoi via home/dot_config/k9s/config.yaml.tmpl
+# Active skin auto-derives from ~/.theme-mode at chezmoi apply time.
+{{- $themeMode := "dark" -}}
+{{- if (stat (joinPath .chezmoi.homeDir ".theme-mode")) -}}
+{{-   $themeMode = (output "cat" (joinPath .chezmoi.homeDir ".theme-mode")) | trim -}}
+{{- end -}}
+{{- $skin := "catppuccin-mocha" -}}
+{{- if eq $themeMode "light" -}}
+{{-   $skin = "catppuccin-latte" -}}
+{{- end -}}
+
+k9s:
+  liveViewAutoRefresh: false
+  screenDumpDir: /tmp/k9s-screens
+  refreshRate: 2
+  maxConnRetry: 5
+  readOnly: false
+  noExitOnCtrlC: false
+  ui:
+    enableMouse: true
+    headless: false
+    logoless: false
+    crumbsless: false
+    splashless: false
+    noIcons: false
+    skin: {{ $skin }}
+  skipLatestRevCheck: false
+  disablePodCounting: false
+  shellPod:
+    image: busybox:1.35.0
+    namespace: default
+    limits:
+      cpu: 100m
+      memory: 100Mi
+  imageScans:
+    enable: false
+  logger:
+    tail: 100
+    buffer: 5000
+    sinceSeconds: -1
+    fullScreenLogs: false
+    textWrap: false
+    showTime: false
