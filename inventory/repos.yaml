@@ -37,6 +37,10 @@ repos:
     path: code/work/enersis/claude-marketplace
     tags: [work]
     note: Enersis internal Claude plugin marketplace; registered via P2-40
+  - url: github.com/enersis/resource-stores
+    path: code/work/enersis/resource-stores
+    tags: [work]
+    note: Enersis resource stores repo
 # Work-org repos are SSO-gated and live in
 # the work overlay (`inventory/repos-<work>.yaml`),
 # not here. See macbook-setup-phase2-prd.md §6 + §11.
