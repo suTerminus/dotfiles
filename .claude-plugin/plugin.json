@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "dotfiles",
+  "version": "0.1.0",
+  "description": "Skills for maintaining the three-overlay dotfiles repo — repo inventory, brew formulae, machine setup, and (in time) work-org connections like AWS SSO and EKS contexts.",
+  "author": {
+    "name": "@suTerminus"
+  },
+  "keywords": ["dotfiles", "chezmoi", "inventory", "machine-setup"]
+}
