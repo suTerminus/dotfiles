@@ -1,46 +1,31 @@
-# Git repositories to clone during bootstrap.
-# Tags: see inventory/README.md.
-# Generated from tools/discovery/output/decisions.md, 2026-05-09.
+# Git repositories to clone during bootstrap (public scope).
+#
+# Scope of this file:
+#   - The dotfiles repo itself (self-reference, for inventory completeness).
+#   - Third-party public repos worth cloning on every machine
+#     (e.g. reference codebases, vendored tooling).
+#
+# Personal `suTerminus/*` repos live in the personal overlay
+# (`~/.local/share/chezmoi-private/inventory/repos-personal.yaml`).
+# Enersis / work-org repos live in the work overlay
+# (`~/.local/share/chezmoi-enersis/inventory/repos-enersis.yaml`).
+# See inventory/README.md §"Three-repo partition".
 #
 # Schema:
 #   url: git+ssh URL or github.com/owner/repo
 #   path: where to clone, relative to $HOME
-#   tags: visibility/scope
-#
-# Note: personal- and work-overlay URLs are placeholders;
-# they will be created in M5.T01.
+#   tags: visibility/scope (see inventory/README.md)
 
 repos:
-  # ---------- Public [] ----------
   - url: github.com/suTerminus/dotfiles
     path: code/personal/dotfiles
     tags: []
     note: this repo (the public dotfiles)
-  - url: github.com/suTerminus/ghost-bazaar
-    path: code/personal/ghost-bazaar
-    tags: []
-    note: private Claude plugin marketplace (daedalus, forge, black-mirror)
-  - url: github.com/suTerminus/daedalus
-    path: code/personal/daedalus
-    tags: []
-    note: architecture & planning tooling; Claude plugin in ghost-bazaar marketplace
-  - url: github.com/suTerminus/forge
-    path: code/personal/forge
-    tags: []
-    note: development flow tooling; Claude plugin in ghost-bazaar marketplace
-  - url: github.com/suTerminus/black-mirror
-    path: code/personal/black-mirror
-    tags: []
-    note: personal work observability system; pulls activity data from all channels
-  # ---------- Work [work] ----------
-  - url: github.com/enersis/claude-marketplace
-    path: code/work/enersis/claude-marketplace
-    tags: [work]
-    note: Enersis internal Claude plugin marketplace; registered via P2-40
-  - url: github.com/enersis/resource-stores
-    path: code/work/enersis/resource-stores
-    tags: [work]
-    note: Enersis resource stores repo
-# Work-org repos are SSO-gated and live in
-# the work overlay (`inventory/repos-<work>.yaml`),
-# not here. See macbook-setup-phase2-prd.md §6 + §11.
+
+  # ---------- Third-party reference repos ----------
+  # Add public OSS repos you want available on every machine here.
+  # Example:
+  # - url: github.com/kubernetes-sigs/kubebuilder
+  #   path: code/third-party/kubebuilder
+  #   tags: []
+  #   note: kubebuilder source, for reference
