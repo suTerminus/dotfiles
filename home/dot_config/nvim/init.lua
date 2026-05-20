@@ -169,6 +169,9 @@ require('lazy').setup({
     },
     keys = {
       { '<leader>ff', '<cmd>Telescope find_files<CR>', desc = 'Find files' },
+      { '<leader>FF', function()
+          require('telescope.builtin').find_files({ hidden = true, no_ignore = true })
+        end, desc = 'Find files (incl. hidden + gitignored)' },
       { '<leader>fg', '<cmd>Telescope live_grep<CR>',  desc = 'Live grep' },
       { '<leader>fb', '<cmd>Telescope buffers<CR>',    desc = 'Buffers' },
       { '<leader>fh', '<cmd>Telescope help_tags<CR>',  desc = 'Help' },
@@ -176,6 +179,14 @@ require('lazy').setup({
     },
     config = function()
       require('telescope').setup({
+        -- Alternative: make <leader>ff itself show hidden + gitignored files
+        -- by uncommenting the block below (and dropping <leader>FF above).
+        -- pickers = {
+        --   find_files = {
+        --     hidden = true,
+        --     no_ignore = true,
+        --   },
+        -- },
         extensions = {
           fzf = {
             fuzzy = true,
